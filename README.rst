@@ -1,1 +1,1 @@
-Cloudflare DNS Authenticator plugin for Certbot
+netcup DNS Authenticator plugin for Certbot

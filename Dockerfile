@@ -1,5 +1,5 @@
 FROM certbot/certbot
 
-COPY . src/certbot-dns-cloudflare
+COPY . src/certbot-dns-netcup
 
-RUN pip install --no-cache-dir --editable src/certbot-dns-cloudflare
+RUN pip install --no-cache-dir --editable src/certbot-dns-netcup

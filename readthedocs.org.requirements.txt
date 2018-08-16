@@ -9,4 +9,4 @@
 
 -e acme
 -e .
--e certbot-dns-cloudflare[docs]
+-e certbot-dns-netcup[docs]

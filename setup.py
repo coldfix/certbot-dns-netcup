@@ -9,7 +9,7 @@ version = '0.27.0.dev0'
 install_requires = [
     'acme>=0.21.1',
     'certbot>=0.21.1',
-    'cloudflare>=1.5.1',
+    'netcup>=1.5.1',
     'mock',
     'setuptools',
     'zope.interface',
@@ -21,9 +21,9 @@ docs_extras = [
 ]
 
 setup(
-    name='certbot-dns-cloudflare',
+    name='certbot-dns-netcup',
     version=version,
-    description="Cloudflare DNS Authenticator plugin for Certbot",
+    description="netcup DNS Authenticator plugin for Certbot",
     url='https://github.com/certbot/certbot',
     author="Certbot Project",
     author_email='client-dev@letsencrypt.org',
@@ -59,8 +59,8 @@ setup(
     },
     entry_points={
         'certbot.plugins': [
-            'dns-cloudflare = certbot_dns_cloudflare.dns_cloudflare:Authenticator',
+            'dns-netcup = certbot_dns_netcup.dns_netcup:Authenticator',
         ],
     },
-    test_suite='certbot_dns_cloudflare',
+    test_suite='certbot_dns_netcup',
 )

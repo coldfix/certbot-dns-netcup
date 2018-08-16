@@ -1,9 +1,9 @@
-"""Tests for certbot_dns_cloudflare.dns_cloudflare."""
+"""Tests for certbot_dns_netcup.dns_netcup."""
 
 import os
 import unittest
 
-import CloudFlare
+import netcup
 import mock
 
 from certbot import errors
@@ -11,7 +11,7 @@ from certbot.plugins import dns_test_common
 from certbot.plugins.dns_test_common import DOMAIN
 from certbot.tests import util as test_util
 
-API_ERROR = CloudFlare.exceptions.CloudFlareAPIError(1000, '', '')
+API_ERROR = netcup.exceptions.netcupAPIError(1000, '', '')
 API_KEY = 'an-api-key'
 EMAIL = 'example@example.com'
 
@@ -19,21 +19,21 @@ EMAIL = 'example@example.com'
 class AuthenticatorTest(test_util.TempDirTestCase, dns_test_common.BaseAuthenticatorTest):
 
     def setUp(self):
-        from certbot_dns_cloudflare.dns_cloudflare import Authenticator
+        from certbot_dns_netcup.dns_netcup import Authenticator
 
         super(AuthenticatorTest, self).setUp()
 
         path = os.path.join(self.tempdir, 'file.ini')
-        dns_test_common.write({"cloudflare_email": EMAIL, "cloudflare_api_key": API_KEY}, path)
+        dns_test_common.write({"netcup_email": EMAIL, "netcup_api_key": API_KEY}, path)
 
-        self.config = mock.MagicMock(cloudflare_credentials=path,
-                                     cloudflare_propagation_seconds=0)  # don't wait during tests
+        self.config = mock.MagicMock(netcup_credentials=path,
+                                     netcup_propagation_seconds=0)  # don't wait during tests
 
-        self.auth = Authenticator(self.config, "cloudflare")
+        self.auth = Authenticator(self.config, "netcup")
 
         self.mock_client = mock.MagicMock()
-        # _get_cloudflare_client | pylint: disable=protected-access
-        self.auth._get_cloudflare_client = mock.MagicMock(return_value=self.mock_client)
+        # _get_netcup_client | pylint: disable=protected-access
+        self.auth._get_netcup_client = mock.MagicMock(return_value=self.mock_client)
 
     def test_perform(self):
         self.auth.perform([self.achall])
@@ -50,7 +50,7 @@ class AuthenticatorTest(test_util.TempDirTestCase, dns_test_common.BaseAuthentic
         self.assertEqual(expected, self.mock_client.mock_calls)
 
 
-class CloudflareClientTest(unittest.TestCase):
+class netcupClientTest(unittest.TestCase):
     record_name = "foo"
     record_content = "bar"
     record_ttl = 42
@@ -58,17 +58,17 @@ class CloudflareClientTest(unittest.TestCase):
     record_id = 2
 
     def setUp(self):
-        from certbot_dns_cloudflare.dns_cloudflare import _CloudflareClient
+        from certbot_dns_netcup.dns_netcup import _netcupClient
 
-        self.cloudflare_client = _CloudflareClient(EMAIL, API_KEY)
+        self.netcup_client = _netcupClient(EMAIL, API_KEY)
 
         self.cf = mock.MagicMock()
-        self.cloudflare_client.cf = self.cf
+        self.netcup_client.cf = self.cf
 
     def test_add_txt_record(self):
         self.cf.zones.get.return_value = [{'id': self.zone_id}]
 
-        self.cloudflare_client.add_txt_record(DOMAIN, self.record_name, self.record_content,
+        self.netcup_client.add_txt_record(DOMAIN, self.record_name, self.record_content,
                                               self.record_ttl)
 
         self.cf.zones.dns_records.post.assert_called_with(self.zone_id, data=mock.ANY)
@@ -87,7 +87,7 @@ class CloudflareClientTest(unittest.TestCase):
 
         self.assertRaises(
             errors.PluginError,
-            self.cloudflare_client.add_txt_record,
+            self.netcup_client.add_txt_record,
             DOMAIN, self.record_name, self.record_content, self.record_ttl)
 
     def test_add_txt_record_error_during_zone_lookup(self):
@@ -95,7 +95,7 @@ class CloudflareClientTest(unittest.TestCase):
 
         self.assertRaises(
             errors.PluginError,
-            self.cloudflare_client.add_txt_record,
+            self.netcup_client.add_txt_record,
             DOMAIN, self.record_name, self.record_content, self.record_ttl)
 
     def test_add_txt_record_zone_not_found(self):
@@ -103,14 +103,14 @@ class CloudflareClientTest(unittest.TestCase):
 
         self.assertRaises(
             errors.PluginError,
-            self.cloudflare_client.add_txt_record,
+            self.netcup_client.add_txt_record,
             DOMAIN, self.record_name, self.record_content, self.record_ttl)
 
     def test_del_txt_record(self):
         self.cf.zones.get.return_value = [{'id': self.zone_id}]
         self.cf.zones.dns_records.get.return_value = [{'id': self.record_id}]
 
-        self.cloudflare_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
+        self.netcup_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
 
         expected = [mock.call.zones.get(params=mock.ANY),
                     mock.call.zones.dns_records.get(self.zone_id, params=mock.ANY),
@@ -127,14 +127,14 @@ class CloudflareClientTest(unittest.TestCase):
     def test_del_txt_record_error_during_zone_lookup(self):
         self.cf.zones.get.side_effect = API_ERROR
 
-        self.cloudflare_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
+        self.netcup_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
 
     def test_del_txt_record_error_during_delete(self):
         self.cf.zones.get.return_value = [{'id': self.zone_id}]
         self.cf.zones.dns_records.get.return_value = [{'id': self.record_id}]
         self.cf.zones.dns_records.delete.side_effect = API_ERROR
 
-        self.cloudflare_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
+        self.netcup_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
         expected = [mock.call.zones.get(params=mock.ANY),
                     mock.call.zones.dns_records.get(self.zone_id, params=mock.ANY),
                     mock.call.zones.dns_records.delete(self.zone_id, self.record_id)]
@@ -145,7 +145,7 @@ class CloudflareClientTest(unittest.TestCase):
         self.cf.zones.get.return_value = [{'id': self.zone_id}]
         self.cf.zones.dns_records.get.side_effect = API_ERROR
 
-        self.cloudflare_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
+        self.netcup_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
         expected = [mock.call.zones.get(params=mock.ANY),
                     mock.call.zones.dns_records.get(self.zone_id, params=mock.ANY)]
 
@@ -155,7 +155,7 @@ class CloudflareClientTest(unittest.TestCase):
         self.cf.zones.get.return_value = [{'id': self.zone_id}]
         self.cf.zones.dns_records.get.return_value = []
 
-        self.cloudflare_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
+        self.netcup_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
         expected = [mock.call.zones.get(params=mock.ANY),
                     mock.call.zones.dns_records.get(self.zone_id, params=mock.ANY)]
 
@@ -164,7 +164,7 @@ class CloudflareClientTest(unittest.TestCase):
     def test_del_txt_record_no_zone(self):
         self.cf.zones.get.return_value = [{'id': None}]
 
-        self.cloudflare_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
+        self.netcup_client.del_txt_record(DOMAIN, self.record_name, self.record_content)
         expected = [mock.call.zones.get(params=mock.ANY)]
 
         self.assertEqual(expected, self.cf.mock_calls)

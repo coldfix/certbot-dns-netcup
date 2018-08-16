@@ -1,5 +1,5 @@
-:mod:`certbot_dns_cloudflare.dns_cloudflare`
+:mod:`certbot_dns_netcup.dns_netcup`
 --------------------------------------------
 
-.. automodule:: certbot_dns_cloudflare.dns_cloudflare
+.. automodule:: certbot_dns_netcup.dns_netcup
    :members:
