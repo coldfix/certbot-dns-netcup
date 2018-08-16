@@ -1,7 +1,7 @@
 """
 The `~certbot_dns_netcup.dns_netcup` plugin automates the process of
 completing a ``dns-01`` challenge (`~acme.challenges.DNS01`) by creating, and
-subsequently removing, TXT records using the netcup API.
+subsequently removing, TXT records using the netcup CCP API.
 
 
 Named Arguments
@@ -22,15 +22,17 @@ Credentials
 
 Use of this plugin requires a configuration file containing netcup API
 credentials, obtained from your netcup
-`account page <https://www.netcup.com/a/account/my-account>`_.
+`account page <https://ccp.netcup.net/run/daten_aendern.php?sprung=api>`_.
+See also the `CCP API <https://www.netcup-wiki.de/wiki/CCP_API>`_ documentation.
 
 .. code-block:: ini
    :name: credentials.ini
    :caption: Example credentials file:
 
    # netcup API credentials used by Certbot
-   dns_netcup_email = netcup@example.com
-   dns_netcup_api_key = 0123456789abcdef0123456789abcdef01234567
+   dns_netcup_customer_id  = 123456
+   dns_netcup_api_key      = 0123456789abcdef0123456789abcdef01234567
+   dns_netcup_api_password = abcdef0123456789abcdef01234567abcdef0123
 
 The path to this file can be provided interactively or using the
 ``--dns-netcup-credentials`` command-line argument. Certbot records the path

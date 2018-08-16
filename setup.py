@@ -9,7 +9,7 @@ version = '0.27.0.dev0'
 install_requires = [
     'acme>=0.21.1',
     'certbot>=0.21.1',
-    'netcup>=1.5.1',
+    'nc_dnsapi==0.1.4',
     'mock',
     'setuptools',
     'zope.interface',
