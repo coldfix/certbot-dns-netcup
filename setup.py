@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-version = '0.27.0.dev0'
+version = '0.27.0.dev1'
 
 # Remember to update local-oldest-requirements.txt when changing the minimum
 # acme/certbot version.
@@ -20,10 +20,16 @@ docs_extras = [
     'sphinx_rtd_theme',
 ]
 
+
+with open('README.rst', 'rb') as f:
+    long_description = f.read().decode('utf-8')
+
+
 setup(
     name='certbot-dns-netcup',
     version=version,
     description="netcup DNS Authenticator plugin for Certbot",
+    long_description=long_description,
     url='https://github.com/certbot/certbot',
     author="Certbot Project",
     author_email='client-dev@letsencrypt.org',
