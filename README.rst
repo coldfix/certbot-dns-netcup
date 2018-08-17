@@ -20,14 +20,14 @@ Forked from certbot-dns-cloudflare_.
 Named Arguments
 ---------------
 
-========================================  =====================================
+=======================================================  =====================================
 ``--certbot-dns-netcup:dns-netcup-credentials``          netcup credentials_ INI file.
-                                          (Required)
+                                                         (Required)
 ``--certbot-dns-netcup:dns-netcup-propagation-seconds``  The number of seconds to wait for DNS
-                                          to propagate before asking the ACME
-                                          server to verify the DNS record.
-                                          (Default: 10)
-========================================  =====================================
+                                                         to propagate before asking the ACME
+                                                         server to verify the DNS record.
+                                                         (Default: 10)
+=======================================================  =====================================
 
 Note that the seemingly redundant ``certbot-dns-netcup:`` prefix is imposed by
 certbot for external plugins.
@@ -39,13 +39,12 @@ Credentials
 Use of this plugin requires a configuration file containing netcup API
 credentials, obtained from your netcup
 `account page <https://ccp.netcup.net/run/daten_aendern.php?sprung=api>`_.
-See also the `CCP API <https://www.netcup-wiki.de/wiki/CCP_API>`_ documentation.
+See also the `CCP API`_ documentation.
+
+An example ``credentials.ini`` file:
 
 .. code-block:: ini
-   :name: credentials.ini
-   :caption: Example credentials file:
 
-   # netcup API credentials used by Certbot
    certbot_dns_netcup:dns_netcup_customer_id  = 123456
    certbot_dns_netcup:dns_netcup_api_key      = 0123456789abcdef0123456789abcdef01234567
    certbot_dns_netcup:dns_netcup_api_password = abcdef0123456789abcdef01234567abcdef0123
