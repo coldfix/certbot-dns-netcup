@@ -4,9 +4,8 @@ certbot-dns-netcup
 netcup_ DNS Authenticator plugin for certbot_.
 
 This plugin automates the process of completing a ``dns-01`` challenge by
-creating, and subsequently removing, TXT records using the netcup CCP API.
-
-Based on the netcup `CCP API`_ using nc_dnsapi_.
+creating, and subsequently removing, TXT records using the netcup `CCP API`_
+via nc_dnsapi_.
 
 Forked from certbot-dns-cloudflare_.
 
@@ -31,6 +30,10 @@ Named Arguments
 
 Note that the seemingly redundant ``certbot-dns-netcup:`` prefix is imposed by
 certbot for external plugins.
+
+You may need to set a relatively high propagation time (>= 10 minutes) to give
+the netcup DNS time to propagate the entries! This should not be a problem in
+automated setups.
 
 
 Credentials
