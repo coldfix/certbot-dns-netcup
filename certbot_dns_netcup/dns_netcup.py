@@ -44,11 +44,13 @@ class Authenticator(dns_common.DNSAuthenticator):
         )
 
     def _perform(self, domain, validation_name, validation):
+        domain = '.'.join(domain.split('.')[-2:])
         with self._get_netcup_client() as api:
             api.add_dns_record(domain, _make_record(
                 domain, validation_name, validation))
 
     def _cleanup(self, domain, validation_name, validation):
+        domain = '.'.join(domain.split('.')[-2:])
         with self._get_netcup_client() as api:
             record = api.dns_record(domain, _make_record(
                 domain, validation_name, validation))
