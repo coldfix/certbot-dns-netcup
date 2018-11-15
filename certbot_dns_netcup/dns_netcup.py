@@ -61,7 +61,8 @@ class Authenticator(dns_common.DNSAuthenticator):
         return nc_dnsapi.Client(
             credentials('customer-id'),
             credentials('api-key'),
-            credentials('api-password'))
+            credentials('api-password'),
+            timeout=30)
 
 
 def _make_record(domain, validation_name, validation):
