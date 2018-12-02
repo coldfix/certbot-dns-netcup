@@ -33,10 +33,14 @@ See also the `CCP API <https://www.netcup-wiki.de/wiki/CCP_API>`_ documentation.
    dns_netcup_customer_id  = 123456
    dns_netcup_api_key      = 0123456789abcdef0123456789abcdef01234567
    dns_netcup_api_password = abcdef0123456789abcdef01234567abcdef0123
+   dns_netcup_timeout      = 60
 
 The path to this file can be provided interactively or using the
 ``--dns-netcup-credentials`` command-line argument. Certbot records the path
 to this file for use during renewal, but does not store the file's contents.
+
+The ``timeout`` entry can be used to avoid timeouts due to slow response times
+of the netcup API servers. If this entry is not given it defaults to 60 seconds.
 
 .. caution::
    You should protect these API credentials as you would the password to your

@@ -51,12 +51,15 @@ An example ``credentials.ini`` file:
    certbot_dns_netcup:dns_netcup_customer_id  = 123456
    certbot_dns_netcup:dns_netcup_api_key      = 0123456789abcdef0123456789abcdef01234567
    certbot_dns_netcup:dns_netcup_api_password = abcdef0123456789abcdef01234567abcdef0123
+   certbot_dns_netcup:dns_netcup_timeout      = 60
 
 The path to this file can be provided interactively or using the
 ``--certbot-dns-netcup:dns-netcup-credentials`` command-line argument. Certbot
 records the path to this file for use during renewal, but does not store the
 file's contents.
 
+The ``timeout`` entry can be used to avoid timeouts due to slow response times
+of the netcup API servers. If this entry is not given it defaults to 60 seconds.
 
 **CAUTION:** You should protect these API credentials as you would the
 password to your netcup account. Users who can read this file can use these
