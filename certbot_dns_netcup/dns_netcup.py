@@ -62,7 +62,7 @@ class Authenticator(dns_common.DNSAuthenticator):
             credentials('customer-id'),
             credentials('api-key'),
             credentials('api-password'),
-            timeout=30)
+            timeout=60)
 
 
 def _make_record(domain, validation_name, validation):
