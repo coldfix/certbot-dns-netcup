@@ -7,8 +7,10 @@ removing, TXT records using the netcup CCP API.
 # Keep metadata before any imports (for setup.py)!
 __version__ = '0.27.0.dev6'
 __url__     = 'https://github.com/coldfix/certbot-dns-netcup'
+__all__     = ['Authenticator']
 
-import nc_dnsapi
+from lexicon.config import ConfigResolver
+from lexicon.providers import netcup
 import zope.interface
 
 from certbot import interfaces
@@ -46,39 +48,30 @@ class Authenticator(dns_common.DNSAuthenticator):
             'credentials',
             'netcup credentials INI file',
             {
-                'customer-id': 'customer ID associated with netcup account',
-                'api-key': 'API key for CCP API, see {0}'.format(CCP_API_URL),
-                'api-password': 'API key for CCP API, see {0}'.format(CCP_API_URL),
+                'customer-id':  'Customer ID associated with netcup account',
+                'api-key':      'Key for CCP API, see {}'.format(CCP_API_URL),
+                'api-password': 'Password for CCP API, see {}'.format(CCP_API_URL),
             }
         )
 
     def _perform(self, domain, validation_name, validation):
-        domain = '.'.join(domain.split('.')[-2:])
-        with self._get_netcup_client() as api:
-            api.add_dns_record(domain, _make_record(
-                domain, validation_name, validation))
+        self._get_netcup_client(domain).create_record(
+            'TXT', validation_name, validation)
 
     def _cleanup(self, domain, validation_name, validation):
-        domain = '.'.join(domain.split('.')[-2:])
-        with self._get_netcup_client() as api:
-            record = api.dns_record(domain, _make_record(
-                domain, validation_name, validation))
-            api.delete_dns_record(domain, record)
+        self._get_netcup_client(domain).delete_record(
+            None, 'TXT', domain, validation_name, validation)
 
-    def _get_netcup_client(self):
-        credentials = self.credentials.conf
-        return nc_dnsapi.Client(
-            credentials('customer-id'),
-            credentials('api-key'),
-            credentials('api-password'),
-            timeout=int(credentials('timeout') or 60))
-
-
-def _make_record(domain, validation_name, validation):
-    suffix = '.' + domain
-    if validation_name.endswith(suffix):
-        validation_name = validation_name[:-len(suffix)]
-    return nc_dnsapi.DNSRecord(
-        hostname=validation_name,
-        type='TXT',
-        destination=validation)
+    def _get_netcup_client(self, domain):
+        conf = self.credentials.conf
+        provider = netcup.Provider(ConfigResolver().with_dict({
+            'provider_name': 'netcup',
+            'domain': '.'.join(domain.split('.')[-2:]),
+            'netcup': {
+                'auth_customer_id':   conf('customer-id'),
+                'auth_api_key':       conf('api-key'),
+                'auth_api_password':  conf('api-password'),
+            },
+        }).with_env())
+        provider.authenticate()
+        return provider
