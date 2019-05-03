@@ -14,11 +14,6 @@ install_requires = [
     'zope.interface',
 ]
 
-docs_extras = [
-    'Sphinx>=1.0',  # autodoc_member_order = 'bysource', autodoc_default_flags
-    'sphinx_rtd_theme',
-]
-
 
 with open('README.rst', 'rb') as f:
     long_description = f.read().decode('utf-8')
@@ -59,9 +54,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=install_requires,
-    extras_require={
-        'docs': docs_extras,
-    },
     entry_points={
         'certbot.plugins': [
             'dns-netcup = certbot_dns_netcup.dns_netcup:Authenticator',
