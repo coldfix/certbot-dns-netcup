@@ -1,6 +1,5 @@
 # encoding: utf-8
 from setuptools import setup
-from setuptools import find_packages
 
 
 version = '0.27.0.dev5'
@@ -11,8 +10,6 @@ install_requires = [
     'acme>=0.21.1',
     'certbot>=0.21.1',
     'nc_dnsapi==0.1.4',
-    'mock',
-    'setuptools',
     'zope.interface',
 ]
 
@@ -58,7 +55,7 @@ setup(
         'Topic :: Utilities',
     ],
 
-    packages=find_packages(),
+    py_modules=['certbot_dns_netcup'],
     include_package_data=True,
     install_requires=install_requires,
     extras_require={
@@ -66,8 +63,7 @@ setup(
     },
     entry_points={
         'certbot.plugins': [
-            'dns-netcup = certbot_dns_netcup.dns_netcup:Authenticator',
+            'dns-netcup = certbot_dns_netcup:Authenticator',
         ],
     },
-    test_suite='certbot_dns_netcup',
 )
