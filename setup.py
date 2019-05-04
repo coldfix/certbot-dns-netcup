@@ -2,7 +2,17 @@
 from setuptools import setup
 
 
-version = '0.27.0.dev6'
+def exec_file(path):
+    """Execute a python file and return the `globals` dictionary."""
+    with open(path, 'rb') as f:
+        code = compile(f.read(), path, 'exec')
+    namespace = {}
+    try:
+        exec(code, namespace, namespace)
+    except ImportError:     # ignore missing dependencies at setup time
+        pass                # and return dunder-globals anyway!
+    return namespace
+
 
 install_requires = [
     'acme>=0.21.1',
@@ -16,9 +26,11 @@ with open('README.rst', 'rb') as f:
     long_description = f.read().decode('utf-8')
 
 
+metadata = exec_file('certbot_dns_netcup.py')
+
 setup(
     name='certbot-dns-netcup',
-    version=version,
+    version=metadata['__version__'],
     description="netcup DNS Authenticator plugin for Certbot",
     long_description=long_description,
     url='https://github.com/coldfix/certbot-dns-netcup',

@@ -4,6 +4,8 @@ This module defines a certbot plugin to automate the process of completing a
 removing, TXT records using the netcup CCP API.
 """
 
+__version__ = '0.27.0.dev6'
+
 import nc_dnsapi
 import zope.interface
 
