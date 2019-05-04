@@ -7,7 +7,7 @@ version = '0.27.0.dev5'
 install_requires = [
     'acme>=0.21.1',
     'certbot>=0.21.1',
-    'nc_dnsapi==0.1.4',
+    'nc_dnsapi>=0.1.5',
     'zope.interface',
 ]
 
