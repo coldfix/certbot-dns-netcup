@@ -2,7 +2,7 @@
 from setuptools import setup
 
 
-version = '0.27.0.dev5'
+version = '0.27.0.dev6'
 
 install_requires = [
     'acme>=0.21.1',
