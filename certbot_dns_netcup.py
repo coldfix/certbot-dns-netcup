@@ -33,11 +33,11 @@ class Authenticator(dns_common.DNSAuthenticator):
         self.credentials = None
 
     @classmethod
-    def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
+    def add_parser_arguments(cls, add):
         super(Authenticator, cls).add_parser_arguments(add)
         add('credentials', help='netcup credentials INI file.')
 
-    def more_info(self):  # pylint: disable=missing-docstring,no-self-use
+    def more_info(self):
         return ('This plugin configures a DNS TXT record to respond to a '
                 'dns-01 challenge using the netcup API.')
 
