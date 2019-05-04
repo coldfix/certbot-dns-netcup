@@ -4,6 +4,10 @@ This module defines a certbot plugin to automate the process of completing a
 removing, TXT records using the netcup CCP API.
 """
 
+# Keep metadata before any imports (for setup.py)!
+__version__ = '0.27.0.dev6'
+__url__     = 'https://github.com/coldfix/certbot-dns-netcup'
+
 import nc_dnsapi
 import zope.interface
 
@@ -21,8 +25,8 @@ class Authenticator(dns_common.DNSAuthenticator):
     This Authenticator uses the netcup API to fulfill a dns-01 challenge.
     """
 
-    description = ('Obtain certificates using a DNS TXT record (if you are using netcup for '
-                   'DNS).')
+    description = ('Obtain certificates using a DNS TXT record (if you are '
+                   'using netcup for DNS).')
 
     def __init__(self, *args, **kwargs):
         super(Authenticator, self).__init__(*args, **kwargs)
@@ -34,8 +38,8 @@ class Authenticator(dns_common.DNSAuthenticator):
         add('credentials', help='netcup credentials INI file.')
 
     def more_info(self):  # pylint: disable=missing-docstring,no-self-use
-        return 'This plugin configures a DNS TXT record to respond to a dns-01 challenge using ' + \
-               'the netcup API.'
+        return ('This plugin configures a DNS TXT record to respond to a '
+                'dns-01 challenge using the netcup API.')
 
     def _setup_credentials(self):
         self.credentials = self._configure_credentials(
