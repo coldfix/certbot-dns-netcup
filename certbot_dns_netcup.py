@@ -9,12 +9,12 @@ __version__ = '0.27.0.dev6'
 __url__     = 'https://github.com/coldfix/certbot-dns-netcup'
 __all__     = ['Authenticator']
 
-from lexicon.config import ConfigResolver
 from lexicon.providers import netcup
 import zope.interface
 
 from certbot import interfaces
 from certbot.plugins import dns_common
+from certbot.plugins import dns_common_lexicon
 
 CCP_API_URL = 'https://www.netcup-wiki.de/wiki/CCP_API'
 
@@ -55,23 +55,35 @@ class Authenticator(dns_common.DNSAuthenticator):
         )
 
     def _perform(self, domain, validation_name, validation):
-        self._get_netcup_client(domain).create_record(
-            'TXT', validation_name, validation)
+        self._get_netcup_client().add_txt_record(
+            domain, validation_name, validation)
 
     def _cleanup(self, domain, validation_name, validation):
-        self._get_netcup_client(domain).delete_record(
-            None, 'TXT', domain, validation_name, validation)
+        self._get_netcup_client().del_txt_record(
+            domain, validation_name, validation)
 
-    def _get_netcup_client(self, domain):
-        conf = self.credentials.conf
-        provider = netcup.Provider(ConfigResolver().with_dict({
-            'provider_name': 'netcup',
-            'domain': '.'.join(domain.split('.')[-2:]),
-            'netcup': {
-                'auth_customer_id':   conf('customer-id'),
-                'auth_api_key':       conf('api-key'),
-                'auth_api_password':  conf('api-password'),
-            },
-        }).with_env())
-        provider.authenticate()
-        return provider
+    def _get_netcup_client(self):
+        credentials = self.credentials.conf
+        return _NetcupLexiconClient(
+            credentials('customer-id'),
+            credentials('api-key'),
+            credentials('api-password'))
+
+
+class _NetcupLexiconClient(dns_common_lexicon.LexiconClient):
+    """Encapsulates all communication with netcup via Lexicon."""
+
+    def __init__(self, customer_id, api_key, api_password):
+        super(_NetcupLexiconClient, self).__init__()
+        config = dns_common_lexicon.build_lexicon_config('netcup', {}, {
+            'auth_customer_id':   customer_id,
+            'auth_api_key':       api_key,
+            'auth_api_password':  api_password,
+        })
+        self.provider = netcup.Provider(config)
+
+    # called while guessing domain name (going from most specific to tld):
+    def _handle_general_error(self, e, domain_name):
+        if 'Value in field domainname does not match requirements' in str(e):
+            return None
+        return super(_NetcupLexiconClient, self)._handle_general_error(e, domain_name)
