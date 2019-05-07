@@ -35,12 +35,9 @@ certbot's command line:
 ``--certbot-dns-netcup:dns-netcup-credentials``         netcup credentials_
                                                         INI file. (Required)
 
-``--certbot-dns-netcup:dns-netcup-propagation-seconds`` waiting time for DNS to
-                                                        propagate before asking
-                                                        the ACME server to
-                                                        verify the DNS record.
-                                                        (Default: 10,
-                                                        Recommended: >= 600)
+``--certbot-dns-netcup:dns-netcup-propagation-seconds`` | waiting time for DNS to propagate before asking
+                                                        | the ACME server to verify the DNS record.
+                                                        | (Default: 10, Recommended: >= 600)
 ======================================================= =======================
 
 You may need to set an even higher propagation time (>= 900 seconds) to give
