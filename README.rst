@@ -28,15 +28,20 @@ Named Arguments
 To start using DNS authentication for netcup, pass the following arguments on
 certbot's command line:
 
-- ``--authenticator=certbot-dns-netcup:dns-netcup``: select the authenticator
-  plugin (Required)
+======================================================= =======================
+``--authenticator certbot-dns-netcup:dns-netcup``       select the authenticator
+                                                        plugin (Required)
 
-- ``--certbot-dns-netcup:dns-netcup-credentials=<FILE>``: netcup credentials_
-  INI file. (Required)
+``--certbot-dns-netcup:dns-netcup-credentials``         netcup credentials_
+                                                        INI file. (Required)
 
-- ``--certbot-dns-netcup:dns-netcup-propagation-seconds=<SECONDS>``: waiting
-  time for DNS to propagate before asking the ACME server to verify the DNS
-  record. (Default: 10, Recommended: >= 900)
+``--certbot-dns-netcup:dns-netcup-propagation-seconds`` waiting time for DNS to
+                                                        propagate before asking
+                                                        the ACME server to
+                                                        verify the DNS record.
+                                                        (Default: 10,
+                                                        Recommended: >= 600)
+======================================================= =======================
 
 You may need to set an even higher propagation time (>= 900 seconds) to give
 the netcup DNS time to propagate the entries! This may be annoying when
