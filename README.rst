@@ -107,13 +107,15 @@ To acquire a single certificate for both ``example.com`` and
 
 .. code-block:: bash
 
-   certbot certonly \\
-     --authenticator dns-netcup \\
-     --dns-netcup-credentials ~/.secrets/certbot/netcup.ini \\
-     --dns-netcup-propagation-seconds 900 \\
-     --server https://acme-v02.api.letsencrypt.org/directory \
-     -d 'example.com' \\
-     -d '*.example.com'
+    certbot certonly \\
+      --authenticator dns-netcup \\
+      --dns-netcup-credentials ~/.secrets/certbot/netcup.ini \\
+      --dns-netcup-propagation-seconds 900 \\
+      --no-self-upgrade \
+      --keep-until-expiring --non-interactive --expand \
+      --server https://acme-v02.api.letsencrypt.org/directory \
+      -d 'example.com' \\
+      -d '*.example.com'
 
 
 Docker
@@ -127,18 +129,17 @@ or pull the latest version directly from Docker Hub::
 Once that's finished, the application can be run as follows::
 
     docker run --rm \
-       -v /var/lib/letsencrypt:/var/lib/letsencrypt \
-       -v /etc/letsencrypt:/etc/letsencrypt \
-       --cap-drop=all \
-       coldfix/certbot-dns-netcup certbot certonly \
-       --authenticator dns-netcup \
-       --dns-netcup-propagation-seconds 900 \
-       --dns-netcup-credentials \
-           /var/lib/letsencrypt/netcup_credentials.ini \
-       --no-self-upgrade \
-       --keep-until-expiring --non-interactive --expand \
-       --server https://acme-v02.api.letsencrypt.org/directory \
-       -d example.com -d '*.example.com'
+      -v /var/lib/letsencrypt:/var/lib/letsencrypt \
+      -v /etc/letsencrypt:/etc/letsencrypt \
+      --cap-drop=all \
+      coldfix/certbot-dns-netcup certbot certonly \
+        --authenticator dns-netcup \
+        --dns-netcup-propagation-seconds 900 \
+        --dns-netcup-credentials /var/lib/letsencrypt/netcup_credentials.ini \
+        --no-self-upgrade \
+        --keep-until-expiring --non-interactive --expand \
+        --server https://acme-v02.api.letsencrypt.org/directory \
+        -d example.com -d '*.example.com'
 
 You may want to change the volumes ``/var/lib/letsencrypt`` and
 ``/etc/letsencrypt`` to local directories where the certificates and
