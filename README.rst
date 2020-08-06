@@ -119,17 +119,10 @@ To acquire a single certificate for both ``example.com`` and
 Docker
 ------
 
-In order to create a docker container with a certbot-dns-netcup installation,
-create an empty directory with the following ``Dockerfile``:
+You can build a docker image from source using the included ``Dockerfile``
+or pull the latest version directly from Docker Hub::
 
-.. code-block:: docker
-
-    FROM certbot/certbot
-    RUN pip install certbot-dns-netcup
-
-Proceed to build the image::
-
-    docker build -t certbot/dns-netcup .
+    docker pull coldfix/certbot-dns-netcup
 
 Once that's finished, the application can be run as follows::
 
@@ -137,7 +130,7 @@ Once that's finished, the application can be run as follows::
        -v /var/lib/letsencrypt:/var/lib/letsencrypt \
        -v /etc/letsencrypt:/etc/letsencrypt \
        --cap-drop=all \
-       certbot/dns-netcup certbot certonly \
+       coldfix/certbot-dns-netcup certbot certonly \
        --authenticator dns-netcup \
        --dns-netcup-propagation-seconds 900 \
        --dns-netcup-credentials \
