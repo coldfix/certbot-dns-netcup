@@ -5,7 +5,7 @@ removing, TXT records using the netcup CCP API.
 """
 
 # Keep metadata before any imports (for setup.py)!
-__version__ = '0.31.0.1'
+__version__ = '1.0.0'
 __url__     = 'https://github.com/coldfix/certbot-dns-netcup'
 __all__     = ['Authenticator']
 
