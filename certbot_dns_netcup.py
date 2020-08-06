@@ -86,4 +86,5 @@ class _NetcupLexiconClient(dns_common_lexicon.LexiconClient):
     def _handle_general_error(self, e, domain_name):
         if 'Value in field domainname does not match requirements' in str(e):
             return None
-        return super(_NetcupLexiconClient, self)._handle_general_error(e, domain_name)
+        return super(_NetcupLexiconClient, self)._handle_general_error(
+            e, domain_name)
