@@ -1,6 +1,8 @@
 certbot-dns-netcup
 ==================
 
+|Version| |License| |ImageSize|
+
 netcup_ DNS Authenticator plugin for certbot_.
 
 This plugin automates the process of completing a ``dns-01`` challenge by
@@ -148,3 +150,18 @@ configuration should be stored.
 **Note:** For some (older?) versions of certbot, the docker image runs
 ``certbot`` from its entrypoint, which means that you may have to remove the
 executable name ``certbot`` from the above command.
+
+
+.. Badges:
+
+.. |Version| image::   https://img.shields.io/pypi/v/certbot-dns-netcup.svg
+   :target:            https://pypi.python.org/pypi/certbot-dns-netcup
+   :alt:               Version
+
+.. |License| image::   https://img.shields.io/pypi/l/certbot-dns-netcup.svg
+   :target:            https://github.com/coldfix/certbot-dns-netcup/blob/master/LICENSE.txt
+   :alt:               License: Apache
+
+.. |ImageSize| image:: https://img.shields.io/docker/image-size/coldfix/certbot-dns-netcup
+   :target:            https://hub.docker.com/repository/docker/coldfix/certbot-dns-netcup
+   :alt:               Docker image size
