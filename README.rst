@@ -9,6 +9,10 @@ This plugin automates the process of completing a ``dns-01`` challenge by
 creating, and subsequently removing, ``TXT`` records using the netcup `CCP
 API`_ via lexicon_.
 
+**Note:** This manual assumes certbot ≥ v1.7, which has improved the naming
+scheme for external plugins. If you cannot upgrade, please also refer to the
+`Old option naming scheme`_ section below.
+
 .. _netcup: https://www.netcup.de/
 .. _certbot: https://certbot.eff.org/
 .. _CCP API: https://www.netcup-wiki.de/wiki/CCP_API
@@ -46,13 +50,6 @@ You may need to set an unexpectedly high propagation time (≥ 900 seconds) to
 give the netcup DNS time to propagate the entries! This may be annoying when
 calling certbot manually but should not be a problem in automated setups.
 
-**Note:** If you're using a certbot version below ``v1.7``, each occurence of
-``dns-netcup`` above must be prefixed by the string ``certbot-dns-netcup:``,
-i.e.: ``--authenticator certbot-dns-netcup:dns-netcup``,
-``--certbot-dns-netcup:dns-netcup-credentials``, and
-``--certbot-dns-netcup:dns-netcup-propagation-seconds``. It is recommended to
-upgrade certbot to the newest version.
-
 
 Credentials
 -----------
@@ -89,16 +86,6 @@ on credentials configuration file", followed by the path to the credentials
 file. This warning will be emitted each time Certbot uses the credentials file,
 including for renewal, and cannot be silenced except by addressing the issue
 (e.g., by using a command like ``chmod 600`` to restrict access to the file).
-
-**Note:** For certbot versions below ``v1.7``, each occurence of
-``dns_netcup`` above must be prefixed by the string ``certbot_dns_netcup:``,
-i.e.:
-
-.. code-block:: ini
-
-   certbot_dns_netcup:dns_netcup_customer_id  = ...
-   certbot_dns_netcup:dns_netcup_api_key      = ...
-   certbot_dns_netcup:dns_netcup_api_password = ...
 
 
 Examples
@@ -148,6 +135,30 @@ configuration should be stored.
 Also note that some certbot docker images run ``certbot`` from its entrypoint,
 which means that you may have to remove the executable name ``certbot`` from
 the above ``docker run`` command.
+
+
+Old option naming scheme
+------------------------
+
+It is recommended to use the newest certbot version, at least ``v1.7``.
+
+If you're using a certbot version below ``v1.7`` all options related to
+external plugins (such as this one) must be prefixed by the name of the
+plugin. This means that every occurence of ``dns-netcup`` in the command line
+options must be replaced by ``certbot-dns-netcup:dns-netcup``, i.e.::
+
+    --authenticator certbot-dns-netcup:dns-netcup
+    --certbot-dns-netcup:dns-netcup-credentials
+    --certbot-dns-netcup:dns-netcup-propagation-seconds
+
+Further, every occurence of ``dns_netcup`` in the config file must be prefixed
+by ``certbot_dns_netcup:``, resulting in a file like this:
+
+.. code-block:: ini
+
+   certbot_dns_netcup:dns_netcup_customer_id  = ...
+   certbot_dns_netcup:dns_netcup_api_key      = ...
+   certbot_dns_netcup:dns_netcup_api_password = ...
 
 
 .. Badges:
