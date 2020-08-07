@@ -6,8 +6,8 @@ certbot-dns-netcup
 netcup_ DNS Authenticator plugin for certbot_.
 
 This plugin automates the process of completing a ``dns-01`` challenge by
-creating, and subsequently removing, TXT records using the netcup `CCP API`_
-via lexicon_.
+creating, and subsequently removing, ``TXT`` records using the netcup `CCP
+API`_ via lexicon_.
 
 .. _netcup: https://www.netcup.de/
 .. _certbot: https://certbot.eff.org/
@@ -37,13 +37,13 @@ certbot's command line:
 ``--dns-netcup-credentials FILE``        netcup credentials_
                                          INI file. (Required)
 
-``--dns-netcup-propagation-seconds 900`` | waiting time for DNS to propagate before asking
+``--dns-netcup-propagation-seconds NUM`` | waiting time for DNS to propagate before asking
                                          | the ACME server to verify the DNS record.
                                          | (Default: 10, Recommended: >= 600)
 ======================================== =======================
 
-You may need to set an even higher propagation time (>= 900 seconds) to give
-the netcup DNS time to propagate the entries! This may be annoying when
+You may need to set an unexpectedly high propagation time (≥ 900 seconds) to
+give the netcup DNS time to propagate the entries! This may be annoying when
 calling certbot manually but should not be a problem in automated setups.
 
 **Note:** If you're using a certbot version below ``v1.7``, each occurence of
@@ -105,9 +105,7 @@ Examples
 --------
 
 To acquire a single certificate for both ``example.com`` and
-``*.example.com``, waiting 900 seconds for DNS propagation:
-
-.. code-block:: bash
+``*.example.com``, waiting 900 seconds for DNS propagation::
 
     certbot certonly \\
       --authenticator dns-netcup \\
@@ -147,9 +145,9 @@ You may want to change the volumes ``/var/lib/letsencrypt`` and
 ``/etc/letsencrypt`` to local directories where the certificates and
 configuration should be stored.
 
-**Note:** For some (older?) versions of certbot, the docker image runs
-``certbot`` from its entrypoint, which means that you may have to remove the
-executable name ``certbot`` from the above command.
+Also note that some certbot docker images run ``certbot`` from its entrypoint,
+which means that you may have to remove the executable name ``certbot`` from
+the above ``docker run`` command.
 
 
 .. Badges:
