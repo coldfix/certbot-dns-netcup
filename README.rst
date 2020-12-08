@@ -126,6 +126,7 @@ Once that's finished, the application can be run as follows::
         --no-self-upgrade \
         --keep-until-expiring --non-interactive --expand \
         --server https://acme-v02.api.letsencrypt.org/directory \
+        --agree-tos --email "webmaster@example.com" \
         -d example.com -d '*.example.com'
 
 You may want to change the volumes ``/var/lib/letsencrypt`` and
