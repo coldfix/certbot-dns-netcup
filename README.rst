@@ -133,10 +133,6 @@ You may want to change the volumes ``/var/lib/letsencrypt`` and
 ``/etc/letsencrypt`` to local directories where the certificates and
 configuration should be stored.
 
-Also note that some certbot docker images run ``certbot`` from its entrypoint,
-which means that you may have to remove the executable name ``certbot`` from
-the above ``docker run`` command.
-
 
 Old option naming scheme
 ------------------------
