@@ -98,7 +98,6 @@ To acquire a single certificate for both ``example.com`` and
       --authenticator dns-netcup \\
       --dns-netcup-credentials ~/.secrets/certbot/netcup.ini \\
       --dns-netcup-propagation-seconds 900 \\
-      --no-self-upgrade \
       --keep-until-expiring --non-interactive --expand \
       --server https://acme-v02.api.letsencrypt.org/directory \
       -d 'example.com' \\
@@ -123,7 +122,6 @@ Once that's finished, the application can be run as follows::
         --authenticator dns-netcup \
         --dns-netcup-propagation-seconds 900 \
         --dns-netcup-credentials /var/lib/letsencrypt/netcup_credentials.ini \
-        --no-self-upgrade \
         --keep-until-expiring --non-interactive --expand \
         --server https://acme-v02.api.letsencrypt.org/directory \
         --agree-tos --email "webmaster@example.com" \
