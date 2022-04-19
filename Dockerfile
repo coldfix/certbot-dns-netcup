@@ -1,4 +1,5 @@
-FROM certbot/certbot
+ARG FROM=certbot/certbot
+FROM ${FROM}
 
 COPY . src/certbot-dns-netcup
 
