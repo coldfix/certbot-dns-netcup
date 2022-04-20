@@ -37,24 +37,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - id: meta_amd64
-        uses: docker/metadata-action@v3
-        with:
-          images: coldfix/certbot-dns-netcup
-          tags: |
-            type=semver,pattern={{version}}
-
-      - id: meta_arm64
-        uses: docker/metadata-action@v3
-        with:
-          images: coldfix/certbot-dns-netcup
-          tags: |
-            type=semver,pattern={{version}}
-          flavor: |
-            latest=auto
-            prefix=arm64-,onlatest=true
-            suffix=
-
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
       - uses: docker/login-action@v1
@@ -66,12 +48,38 @@ jobs:
         with:
           platforms: linux/amd64
           build-args: FROM=certbot/certbot:latest
+          load: true
           push: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          tags: ${{ steps.meta_amd64.outputs.tags }}
+          tags: |
+            coldfix/certbot-dns-netcup:amd64-latest
+            coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
 
       - uses: docker/build-push-action@v2
         with:
           platforms: linux/arm64
           build-args: FROM=certbot/certbot:arm64v8-latest
+          load: true
           push: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          tags: ${{ steps.meta_arm64.outputs.tags }}
+          tags: |
+            coldfix/certbot-dns-netcup:arm64-latest
+            coldfix/certbot-dns-netcup:arm64-${{ github.ref_name }}
+
+      # push multi-arch images:
+
+      - run: docker manifest create
+                coldfix/certbot-dns-netcup:latest
+                coldfix/certbot-dns-netcup:amd64-latest
+                coldfix/certbot-dns-netcup:arm64-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+
+      - run: docker manifest push coldfix/certbot-dns-netcup:latest
+        if: startsWith(github.ref, 'refs/tags/v')
+
+      - run: docker manifest create
+                coldfix/certbot-dns-netcup:${{ github.ref_name }}
+                coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
+                coldfix/certbot-dns-netcup:arm64-${{ github.ref_name }}
+        if: startsWith(github.ref, 'refs/tags/v')
+
+      - run: docker manifest push coldfix/certbot-dns-netcup:${{ github.ref_name }}
+        if: startsWith(github.ref, 'refs/tags/v')
