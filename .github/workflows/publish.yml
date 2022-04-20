@@ -47,9 +47,13 @@ jobs:
       - id: meta_arm64
         uses: docker/metadata-action@v3
         with:
-          images: coldfix/test-repo
+          images: coldfix/certbot-dns-netcup
           tags: |
-            type=semver,pattern={{version}},prefix=arm64-
+            type=semver,pattern={{version}}
+          flavor: |
+            latest=auto
+            prefix=arm64-,onlatest=true
+            suffix=
 
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
