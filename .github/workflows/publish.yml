@@ -2,35 +2,6 @@ name: Build and publish
 on: push
 
 jobs:
-  pypi:
-    name: PyPI
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-
-      - name: Install setup dependencies
-        run: pip install wheel twine flake8
-
-      - run: flake8
-
-      - name: Build package
-        run: python setup.py sdist bdist_wheel
-
-      - name: Check distribution
-        run: twine check dist/*
-
-      - name: Publish package to PyPI
-        if: startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: coldfix-deploy
-          password: ${{ secrets.pypi_password }}
 
   docker:
     name: Docker Hub
@@ -49,37 +20,33 @@ jobs:
           platforms: linux/amd64
           build-args: FROM=certbot/certbot:latest
           load: true
-          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          push: true
           tags: |
-            coldfix/certbot-dns-netcup:amd64-latest
-            coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
+            coldfix/test-repo:amd64-latest
+            coldfix/test-repo:amd64-${{ github.ref_name }}
 
       - uses: docker/build-push-action@v2
         with:
           platforms: linux/arm64
           build-args: FROM=certbot/certbot:arm64v8-latest
           load: true
-          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          push: true
           tags: |
-            coldfix/certbot-dns-netcup:arm64-latest
-            coldfix/certbot-dns-netcup:arm64-${{ github.ref_name }}
+            coldfix/test-repo:arm64-latest
+            coldfix/test-repo:arm64-${{ github.ref_name }}
 
       # push multi-arch images:
 
       - run: docker manifest create
-                coldfix/certbot-dns-netcup:latest
-                coldfix/certbot-dns-netcup:amd64-latest
-                coldfix/certbot-dns-netcup:arm64-latest
-        if: startsWith(github.ref, 'refs/tags/v')
+                coldfix/test-repo:latest
+                coldfix/test-repo:amd64-latest
+                coldfix/test-repo:arm64-latest
 
-      - run: docker manifest push coldfix/certbot-dns-netcup:latest
-        if: startsWith(github.ref, 'refs/tags/v')
+      - run: docker manifest push coldfix/test-repo:latest
 
       - run: docker manifest create
-                coldfix/certbot-dns-netcup:${{ github.ref_name }}
-                coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
-                coldfix/certbot-dns-netcup:arm64-${{ github.ref_name }}
-        if: startsWith(github.ref, 'refs/tags/v')
+                coldfix/test-repo:${{ github.ref_name }}
+                coldfix/test-repo:amd64-${{ github.ref_name }}
+                coldfix/test-repo:arm64-${{ github.ref_name }}
 
-      - run: docker manifest push coldfix/certbot-dns-netcup:${{ github.ref_name }}
-        if: startsWith(github.ref, 'refs/tags/v')
+      - run: docker manifest push coldfix/test-repo:${{ github.ref_name }}
