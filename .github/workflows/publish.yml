@@ -20,7 +20,6 @@ jobs:
           platforms: linux/amd64
           build-args: FROM=certbot/certbot:latest
           load: true
-          push: true
           tags: |
             coldfix/test-repo:amd64-latest
             coldfix/test-repo:amd64-${{ github.ref_name }}
@@ -30,12 +29,13 @@ jobs:
           platforms: linux/arm64
           build-args: FROM=certbot/certbot:arm64v8-latest
           load: true
-          push: true
           tags: |
             coldfix/test-repo:arm64-latest
             coldfix/test-repo:arm64-${{ github.ref_name }}
 
       # push multi-arch images:
+
+      - run: docker push -a coldfix/test-repo
 
       - run: docker manifest create
                 coldfix/test-repo:latest
