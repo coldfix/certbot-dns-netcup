@@ -65,6 +65,7 @@ jobs:
       # push multi-arch images:
 
       - run: docker push -a coldfix/certbot-dns-netcup
+        if: startsWith(github.ref, 'refs/tags/v')
 
       - run: docker manifest create
                 coldfix/certbot-dns-netcup:latest
