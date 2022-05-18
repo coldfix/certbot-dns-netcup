@@ -1,5 +1,9 @@
 name: Build and publish
-on: push
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '5 21  *  *  4'
 
 jobs:
   pypi:
