@@ -1,0 +1,17 @@
+version: '3'
+services:
+  letsencrypt:
+    build:
+      context: ./build
+    container_name: netcup_letsencrypt
+    restart: "no"
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+    environment:
+      - NETCUP_SECONDS=900
+      - DNS_NETCUP_CUSTOMER_ID=xxxx
+      - DNS_NETCUP_API_KEY=xxxxx
+      - DNS_NETCUP_API_PASSWORD=xxxx
+      - EMAIL=webmaster@mail.com
+      - DOMAIN=-d example.com -d '*.example.com'
+      - EXTRA_ARGS=--dry-run
