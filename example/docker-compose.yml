@@ -2,11 +2,12 @@ version: '3'
 services:
   letsencrypt:
     build:
-      context: ./build
+      context: .
     container_name: netcup_letsencrypt
     restart: "no"
     volumes:
       - ./letsencrypt:/etc/letsencrypt
+      - ./log:/var/log/letsencrypt/
     environment:
       - NETCUP_SECONDS=900
       - DNS_NETCUP_CUSTOMER_ID=xxxx
