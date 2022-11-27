@@ -10,17 +10,13 @@ __url__     = 'https://github.com/coldfix/certbot-dns-netcup'
 __all__     = ['Authenticator']
 
 from lexicon.providers import netcup
-import zope.interface
 
-from certbot import interfaces
 from certbot.plugins import dns_common
 from certbot.plugins import dns_common_lexicon
 
 CCP_API_URL = 'https://www.netcup-wiki.de/wiki/CCP_API'
 
 
-@zope.interface.implementer(interfaces.IAuthenticator)
-@zope.interface.provider(interfaces.IPluginFactory)
 class Authenticator(dns_common.DNSAuthenticator):
     """DNS Authenticator for netcup
 
