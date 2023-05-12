@@ -23,9 +23,37 @@ scheme for external plugins. If you cannot upgrade, please also refer to the
 Installation
 ------------
 
-::
+Since this package acts as a plugin for certbot_, the installation method can
+vary depending on how certbot is installed.
+
+pip
+~~~
+
+If certbot is installed normally as a python package, the plugin can be
+installed using::
 
     pip install certbot-dns-netcup
+
+snap
+~~~~
+
+If certbot is installed as a snap::
+
+    sudo snap install certbot-dns-netcup
+
+Furthermore, the following seems to be required in order to connect the plugin
+to certbot::
+
+    sudo snap set certbot trust-plugin-with-root=ok
+    sudo snap connect certbot:plugin certbot-dns-netcup
+
+docker
+~~~~~~
+
+Using docker, you can pull an image that contains both certbot and a matching
+version of the plugin::
+
+    docker pull coldfix/certbot-dns-netcup
 
 
 Named Arguments

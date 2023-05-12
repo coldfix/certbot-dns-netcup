@@ -70,3 +70,18 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
       - run: docker manifest push coldfix/certbot-dns-netcup:${{ github.ref_name }}
         if: startsWith(github.ref, 'refs/tags/v')
+
+  snap:
+    name: snapcraft.io
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: snapcore/action-build@v1
+        id: build
+      - uses: snapcore/action-publish@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: stable

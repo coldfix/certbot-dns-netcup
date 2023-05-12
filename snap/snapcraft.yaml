@@ -1,0 +1,23 @@
+name: certbot-dns-netcup
+version: 1.2.0
+summary: Certbot DNS Authenticator plugin for netcup
+description: |
+  This plugin automates the process of completing a dns-01 challenge by
+  creating, and subsequently removing, TXT records using the netcup CCP
+  API via lexicon.
+
+confinement: strict
+grade: stable
+base: core20
+
+parts:
+  certbot-dns-netcup:
+    plugin: python
+    source: .
+
+slots:
+  certbot:
+    interface: content
+    content: certbot-1
+    read:
+      - $SNAP/lib/python3.8/site-packages
