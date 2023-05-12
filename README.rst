@@ -56,6 +56,24 @@ version of the plugin::
     docker pull coldfix/certbot-dns-netcup
 
 
+Usage
+-----
+
+To acquire a single certificate for both ``example.com`` and
+``*.example.com``, waiting 900 seconds for DNS propagation::
+
+    certbot certonly \\
+      --authenticator dns-netcup \\
+      --dns-netcup-credentials ~/.secrets/certbot/netcup.ini \\
+      --dns-netcup-propagation-seconds 900 \\
+      --keep-until-expiring --non-interactive --expand \
+      --server https://acme-v02.api.letsencrypt.org/directory \
+      -d 'example.com' \\
+      -d '*.example.com'
+
+The parameters and the format of the credentials file are described below.
+
+
 Named Arguments
 ---------------
 
@@ -114,22 +132,6 @@ on credentials configuration file", followed by the path to the credentials
 file. This warning will be emitted each time Certbot uses the credentials file,
 including for renewal, and cannot be silenced except by addressing the issue
 (e.g., by using a command like ``chmod 600`` to restrict access to the file).
-
-
-Examples
---------
-
-To acquire a single certificate for both ``example.com`` and
-``*.example.com``, waiting 900 seconds for DNS propagation::
-
-    certbot certonly \\
-      --authenticator dns-netcup \\
-      --dns-netcup-credentials ~/.secrets/certbot/netcup.ini \\
-      --dns-netcup-propagation-seconds 900 \\
-      --keep-until-expiring --non-interactive --expand \
-      --server https://acme-v02.api.letsencrypt.org/directory \
-      -d 'example.com' \\
-      -d '*.example.com'
 
 
 Docker
