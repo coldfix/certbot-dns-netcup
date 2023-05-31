@@ -137,10 +137,15 @@ including for renewal, and cannot be silenced except by addressing the issue
 Docker
 ------
 
-You can build a docker image from source using the included ``Dockerfile``
-or pull the latest version directly from Docker Hub::
+You can pull the latest version of the docker image directly from Docker Hub
+as follows::
 
     docker pull coldfix/certbot-dns-netcup
+
+Alternatively, the docker image can be built from a local checkout and the
+included ``Dockerfile`` as follows::
+
+    docker build -t coldfix/certbot-dns-netcup .
 
 Once that's finished, the application can be run as follows::
 
