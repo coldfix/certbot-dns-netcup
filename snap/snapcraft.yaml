@@ -9,6 +9,9 @@ description: |
 confinement: strict
 grade: stable
 base: core20
+architectures:
+  - build-on: amd64
+    run-on: all
 
 parts:
   certbot-dns-netcup:
