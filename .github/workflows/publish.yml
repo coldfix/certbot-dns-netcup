@@ -8,7 +8,7 @@ jobs:
     name: pypi.org
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with: {python-version: 3.x}
 
@@ -73,7 +73,7 @@ jobs:
     name: snapcraft.io
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: snapcore/action-build@v1
         id: build
       - uses: snapcore/action-publish@v1
