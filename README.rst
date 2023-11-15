@@ -61,12 +61,12 @@ Usage
 -----
 
 To acquire a single certificate for both ``example.com`` and
-``*.example.com``, waiting 900 seconds for DNS propagation::
+``*.example.com``, waiting 1200 seconds (20min) for DNS propagation::
 
     certbot certonly \\
       --authenticator dns-netcup \\
       --dns-netcup-credentials ~/.secrets/certbot/netcup.ini \\
-      --dns-netcup-propagation-seconds 900 \\
+      --dns-netcup-propagation-seconds 1200 \\
       --keep-until-expiring --non-interactive --expand \
       --server https://acme-v02.api.letsencrypt.org/directory \
       -d 'example.com' \\
@@ -90,12 +90,16 @@ certbot's command line:
 
 ``--dns-netcup-propagation-seconds NUM`` | waiting time for DNS to propagate before asking
                                          | the ACME server to verify the DNS record.
-                                         | (Default: 10, Recommended: >= 600)
+                                         | (Default: 900, Recommended: >= 600)
 ======================================== =======================
 
+**NOTE:**
 You may need to set an unexpectedly high propagation time (≥ 900 seconds) to
 give the netcup DNS time to propagate the entries! This may be annoying when
 calling certbot manually but should not be a problem in automated setups.
+In exceptional cases, 20 minutes may be required. See `#28`_.
+
+.. _#28: https://github.com/coldfix/certbot-dns-netcup/issues/28
 
 
 Credentials

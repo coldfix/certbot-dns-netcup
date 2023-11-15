@@ -46,7 +46,8 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     @classmethod
     def add_parser_arguments(cls, add):
-        super(Authenticator, cls).add_parser_arguments(add)
+        super(Authenticator, cls).add_parser_arguments(
+            add, default_propagation_seconds=900)
         add('credentials', help='netcup credentials INI file.')
 
     def more_info(self):
