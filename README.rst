@@ -37,8 +37,7 @@ installed using::
 snap
 ~~~~
 
-If certbot is installed as a snap, you'll have to install this plugin as
-follows::
+If certbot is installed as a snap::
 
     sudo snap install certbot-dns-netcup
 
