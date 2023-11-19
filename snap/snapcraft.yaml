@@ -9,6 +9,9 @@ description: |
 confinement: strict
 grade: stable
 base: core20
+architectures:
+  - build-on: amd64
+    run-on: all
 
 parts:
   certbot-dns-netcup:
@@ -38,6 +41,8 @@ parts:
       cd $SITE_DIR
       # Remove our .pth file:
       rm -f certbot.pth
+      # Remove presumably unneeded .so file - to keep platform independence:
+      rm -f yaml/_yaml.*.so
       # Remove presumably unneeded packages of the venv base installation:
       rm -rf $VENV_BASE_PACKAGES
     prime:
