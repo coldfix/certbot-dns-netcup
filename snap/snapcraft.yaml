@@ -12,8 +12,17 @@ base: core20
 
 parts:
   certbot-dns-netcup:
-    plugin: python
+    plugin: nil
     source: .
+    build-packages:
+      - python3-pip
+    build-snaps:
+      - certbot
+    override-build: |
+      ln -sfT /snap/certbot/current $HOME/.local
+      python3 -m pip install . --prefix $SNAPCRAFT_PART_INSTALL
+    prime:
+      - lib
 
 slots:
   certbot:
