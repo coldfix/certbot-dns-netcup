@@ -15,12 +15,31 @@ parts:
     plugin: nil
     source: .
     build-packages:
-      - python3-pip
+      - python3-venv
     build-snaps:
       - certbot
     override-build: |
-      ln -sfT /snap/certbot/current $HOME/.local
-      python3 -m pip install . --prefix $SNAPCRAFT_PART_INSTALL
+      MAJOR=$(python3 -c 'import sys; print(sys.version_info.major)')
+      MINOR=$(python3 -c 'import sys; print(sys.version_info.minor)')
+      SITE_PTH=lib/python$MAJOR.$MINOR/site-packages
+      SITE_DIR=$SNAPCRAFT_PART_INSTALL/$SITE_PTH
+
+      # Avoid installing packages that will already be included in the
+      # certbot snap:
+      mkdir -p $SITE_DIR
+      echo /snap/certbot/current/$SITE_PTH > $SITE_DIR/certbot.pth
+
+      python3 -m venv $SNAPCRAFT_PART_INSTALL
+
+      VENV_BASE_PACKAGES=$(ls $SITE_DIR)
+
+      $SNAPCRAFT_PART_INSTALL/bin/python -m pip install .
+
+      cd $SITE_DIR
+      # Remove our .pth file:
+      rm -f certbot.pth
+      # Remove presumably unneeded packages of the venv base installation:
+      rm -rf $VENV_BASE_PACKAGES
     prime:
       - lib
 
