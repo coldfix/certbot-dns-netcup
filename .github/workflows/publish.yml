@@ -43,7 +43,7 @@ jobs:
           username: coldfix
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64
           build-args: FROM=certbot/certbot:latest
@@ -51,7 +51,7 @@ jobs:
           tags: |
             coldfix/certbot-dns-netcup:amd64-latest
             coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
-      - uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         with:
           platforms: linux/arm64
           build-args: FROM=certbot/certbot:arm64v8-latest
