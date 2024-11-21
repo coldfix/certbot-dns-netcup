@@ -1,5 +1,5 @@
 name: certbot-dns-netcup
-version: 1.4.3
+version: 3.0.0
 summary: Certbot DNS Authenticator plugin for netcup
 description: |
   This plugin automates the process of completing a dns-01 challenge by
@@ -8,10 +8,12 @@ description: |
 
 confinement: strict
 grade: stable
-base: core20
-architectures:
-  - build-on: amd64
-    run-on: all
+base: core24
+adopt-info: certbot-dns-netcup
+platforms:
+  all:
+    build-on: amd64
+    build-for: all
 
 parts:
   certbot-dns-netcup:
@@ -47,10 +49,24 @@ parts:
       rm -rf $VENV_BASE_PACKAGES
     prime:
       - lib
+  certbot-metadata:
+    plugin: dump
+    source: .
+    stage: [setup.py, certbot-shared]
+    override-pull: |
+        craftctl default
+        mkdir -p $SNAPCRAFT_PART_SRC/certbot-shared
 
 slots:
   certbot:
     interface: content
     content: certbot-1
     read:
-      - $SNAP/lib/python3.8/site-packages
+      - $SNAP/lib/python3.12/site-packages
+
+plugs:
+  certbot-metadata:
+    interface: content
+    content: metadata-1
+    target: $SNAP/certbot-shared
+
