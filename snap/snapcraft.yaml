@@ -1,5 +1,5 @@
 name: certbot-dns-netcup
-version: 1.4.3
+version: 1.4.4
 summary: Certbot DNS Authenticator plugin for netcup
 description: |
   This plugin automates the process of completing a dns-01 challenge by
