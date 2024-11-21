@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with: {python-version: 3.x}
 
       - run: pip install wheel twine flake8 setuptools
@@ -17,7 +17,7 @@ jobs:
       - run: python setup.py sdist bdist_wheel
       - run: twine check dist/*
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with: {name: dist, path: dist/}
 
   pypi:
@@ -28,7 +28,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with: {name: dist, path: dist/}
       - uses: pypa/gh-action-pypi-publish@release/v1
 
@@ -43,7 +43,7 @@ jobs:
           username: coldfix
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64
           build-args: FROM=certbot/certbot:latest
@@ -51,7 +51,7 @@ jobs:
           tags: |
             coldfix/certbot-dns-netcup:amd64-latest
             coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
-      - uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         with:
           platforms: linux/arm64
           build-args: FROM=certbot/certbot:arm64v8-latest

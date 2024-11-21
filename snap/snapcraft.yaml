@@ -8,10 +8,12 @@ description: |
 
 confinement: strict
 grade: stable
-base: core20
-architectures:
-  - build-on: amd64
-    run-on: all
+base: core24
+platforms:
+  all:
+    build-on: amd64
+    build-for: all
+
 
 parts:
   certbot-dns-netcup:
@@ -53,4 +55,4 @@ slots:
     interface: content
     content: certbot-1
     read:
-      - $SNAP/lib/python3.8/site-packages
+      - $SNAP/lib/python3.12/site-packages
