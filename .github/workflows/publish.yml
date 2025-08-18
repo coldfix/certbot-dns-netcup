@@ -8,7 +8,7 @@ jobs:
     name: Build and check package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with: {python-version: 3.x}
 
@@ -82,7 +82,7 @@ jobs:
     name: Upload to snapcraft.io
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: snapcore/action-build@v1
         id: build
       - uses: snapcore/action-publish@v1
