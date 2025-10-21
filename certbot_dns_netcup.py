@@ -113,10 +113,9 @@ class APIClient:
     # public interface
 
     def add_dns_record(self, domain, name, content):
-        """Create record. If it already exists, do nothing."""
+        """Create record."""
         record = _make_record(domain, name, content)
-        if not self._query_records(domain, record):
-            self._update_records(domain, [record])
+        self._update_records(domain, [record])
 
     def delete_dns_record(self, domain, name, content):
         """Delete an existing record. If record does not exist, do nothing."""
