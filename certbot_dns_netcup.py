@@ -43,6 +43,8 @@ class Authenticator(dns_common.DNSAuthenticator):
     def add_parser_arguments(cls, add):
         super().add_parser_arguments(add, default_propagation_seconds=900)
         add('credentials', help='netcup credentials INI file.')
+        add('login-retries', default=3, type=int,
+            help="login retry attempts in case of session timeout")
 
     def more_info(self):
         return ('This plugin configures a DNS TXT record to respond to a '
@@ -74,16 +76,23 @@ class Authenticator(dns_common.DNSAuthenticator):
         return APIClient(
             credentials('customer-id'),
             credentials('api-key'),
-            credentials('api-password'))
+            credentials('api-password'),
+            self.conf('login-retries'))
 
 
 class APIClient:
 
-    def __init__(self, customer_id, api_key, api_password):
+    def __init__(self, customer_id, api_key, api_password, login_retries):
         self._customer_id = customer_id
         self._api_key = api_key
         self._api_password = api_password
         self._api_session_id = None
+        self._login_retries = login_retries
+        if login_retries < 0:
+            raise PluginError((
+                "Invalid value for --dns-netcup-login-retries: {}. "
+                "Must be >= 0."
+            ).format(login_retries))
 
     # public interface
 
@@ -133,10 +142,10 @@ class APIClient:
             domainname=domain,
             dnsrecordset={"dnsrecords": records})
 
-    def _authenticate(self):
+    def _authenticate(self, force=False):
         """Authenticate with netcup server. Must be called first."""
 
-        if not self._api_session_id:
+        if force or not self._api_session_id:
             responsedata = _apicall("login", {
                 "customernumber": self._customer_id,
                 "apikey": self._api_key,
@@ -153,9 +162,22 @@ class APIClient:
             "apisessionid": self._api_session_id,
         }
 
-    def _authenticate_and_call(self, action, **param):
-        """Authenticate and then perform API call."""
-        session_auth = self._authenticate()
+    def _authenticate_and_call(self, action, domainname, **param):
+        """Authenticate and then perform API call.
+        Auto retry login if session timed out."""
+        param = dict(param, domainname=domainname)
+        session_auth = self._authenticate(False)
+
+        for i in range(self._login_retries):
+            try:
+                return _apicall(action, session_auth, **param)
+            except NetcupSessionTimeoutError:
+                LOGGER.info(
+                    "Login session timed out during call %s for domain %s. "
+                    "Retrying login (attempt %d)",
+                    action, domainname, i + 1)
+                session_auth = self._authenticate(True)
+
         return _apicall(action, session_auth, **param)
 
 
@@ -196,6 +218,14 @@ def _apicall(action, credentials, **param):
     if status == "success":     # statuscode == 2000
         return data.get("responsedata", {})
 
+    # The session times out after roughly 30s and fails with this error:
+    if 'The session id is not in a valid format.' in longmessage:
+        raise NetcupSessionTimeoutError(
+            action, statuscode, shortmessage, longmessage)
+
+    # When something with the JSON format was incorrect, there is also:
+    # "Api key missing. JSON decode failed while validating request."
+
     raise NetcupError(
         action, statuscode, shortmessage, longmessage)
 
@@ -214,3 +244,7 @@ class NetcupError(PluginError):
     def _format(cls, action, statuscode, shortmessage, longmessage):
         return (f'{cls.__name__} during {action}: '
                 f'{shortmessage} ({statuscode}) {longmessage}')
+
+
+class NetcupSessionTimeoutError(NetcupError):
+    pass

@@ -91,6 +91,10 @@ certbot's command line:
 ``--dns-netcup-propagation-seconds NUM`` | waiting time for DNS to propagate before asking
                                          | the ACME server to verify the DNS record.
                                          | (Default: 900, Recommended: >= 600)
+
+``--dns-netcup-login-retries NUM``       | Number of login retry attempts in case the
+                                         | netcup API client session times out.
+                                         | (Default: 3, Recommended: >= 1)
 ======================================== =======================
 
 **NOTE:**
