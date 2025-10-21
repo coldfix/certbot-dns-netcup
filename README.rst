@@ -7,7 +7,7 @@ netcup_ DNS Authenticator plugin for certbot_.
 
 This plugin automates the process of completing a ``dns-01`` challenge by
 creating, and subsequently removing, ``TXT`` records using the netcup `CCP
-API`_ via lexicon_.
+API`_ via nc_dnsapi_.
 
 **Note:** This plugin requires certbot ≥ v2.7.
 
@@ -16,7 +16,7 @@ If you need support for older certbot versions, check version 1.4.X and below.
 .. _netcup: https://www.netcup.de/
 .. _certbot: https://certbot.eff.org/
 .. _CCP API: https://www.netcup-wiki.de/wiki/CCP_API
-.. _lexicon: https://github.com/AnalogJ/lexicon
+.. _nc_dnsapi: https://github.com/nbuchwitz/nc_dnsapi
 .. _certbot-dns-cloudflare: https://certbot-dns-cloudflare.readthedocs.io/en/latest/
 
 
