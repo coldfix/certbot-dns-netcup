@@ -9,9 +9,9 @@ This plugin automates the process of completing a ``dns-01`` challenge by
 creating, and subsequently removing, ``TXT`` records using the netcup `CCP
 API`_ via lexicon_.
 
-**Note:** This manual assumes certbot ≥ v1.7, which has improved the naming
-scheme for external plugins. If you cannot upgrade, please also refer to the
-`Old option naming scheme`_ section below.
+**Note:** This plugin requires certbot ≥ v2.7.
+
+If you need support for older certbot versions, check version 1.4.X and below.
 
 .. _netcup: https://www.netcup.de/
 .. _certbot: https://certbot.eff.org/
@@ -170,30 +170,6 @@ Once that's finished, the application can be run as follows::
 You may want to change the volumes ``/var/lib/letsencrypt`` and
 ``/etc/letsencrypt`` to local directories where the certificates and
 configuration should be stored.
-
-
-Old option naming scheme
-------------------------
-
-It is recommended to use the newest certbot version, at least ``v1.7``.
-
-If you're using a certbot version below ``v1.7`` all options related to
-external plugins (such as this one) must be prefixed by the name of the
-plugin. This means that every occurence of ``dns-netcup`` in the command line
-options must be replaced by ``certbot-dns-netcup:dns-netcup``, i.e.::
-
-    --authenticator certbot-dns-netcup:dns-netcup
-    --certbot-dns-netcup:dns-netcup-credentials
-    --certbot-dns-netcup:dns-netcup-propagation-seconds
-
-Further, every occurence of ``dns_netcup`` in the config file must be prefixed
-by ``certbot_dns_netcup:``, resulting in a file like this:
-
-.. code-block:: ini
-
-   certbot_dns_netcup:dns_netcup_customer_id  = ...
-   certbot_dns_netcup:dns_netcup_api_key      = ...
-   certbot_dns_netcup:dns_netcup_api_password = ...
 
 
 .. Badges:
