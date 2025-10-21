@@ -45,6 +45,9 @@ class Authenticator(dns_common.DNSAuthenticator):
         add('credentials', help='netcup credentials INI file.')
         add('login-retries', default=3, type=int,
             help="login retry attempts in case of session timeout")
+        add('zone-name', help=(
+            "zone name to operate on (often TLD). "
+            "Will be determined using brute-force requests if not specified."))
 
     def more_info(self):
         return ('This plugin configures a DNS TXT record to respond to a '
@@ -75,6 +78,10 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     def _determine_zone(self, domain, func):
         """Find the domain_id for a given domain."""
+        zone_name = self.conf('zone-name')
+        if zone_name:
+            return func(zone_name)
+
         domain_name_guesses = dns_common.base_domain_name_guesses(domain)
 
         for domain_name in domain_name_guesses:
