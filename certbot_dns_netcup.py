@@ -62,14 +62,30 @@ class Authenticator(dns_common.DNSAuthenticator):
         )
 
     def _perform(self, domain, validation_name, validation):
-        domain = '.'.join(domain.split('.')[-2:])
+        LOGGER.debug("add_dns_record (%s, %s)", domain, validation_name)
         client = self._get_netcup_client()
-        client.add_dns_record(domain, validation_name, validation)
+        self._determine_zone(domain, lambda domain: (
+            client.add_dns_record(domain, validation_name, validation)))
 
     def _cleanup(self, domain, validation_name, validation):
-        domain = '.'.join(domain.split('.')[-2:])
+        LOGGER.debug("delete_dns_record(%s, %s)", domain, validation_name)
         client = self._get_netcup_client()
-        client.delete_dns_record(domain, validation_name, validation)
+        self._determine_zone(domain, lambda domain: (
+            client.delete_dns_record(domain, validation_name, validation)))
+
+    def _determine_zone(self, domain, func):
+        """Find the domain_id for a given domain."""
+        domain_name_guesses = dns_common.base_domain_name_guesses(domain)
+
+        for domain_name in domain_name_guesses:
+            try:
+                return func(domain_name)
+            except NetcupZoneError:
+                pass
+
+        raise PluginError(
+            'Unable to determine zone identifier for {0} using zone names: {1}'
+            .format(domain, domain_name_guesses))
 
     def _get_netcup_client(self):
         credentials = self.credentials.conf
@@ -98,16 +114,12 @@ class APIClient:
 
     def add_dns_record(self, domain, name, content):
         """Create record. If it already exists, do nothing."""
-        LOGGER.debug("add_dns_record(%s, %s)", domain, name)
-
         record = _make_record(domain, name, content)
         if not self._query_records(domain, record):
             self._update_records(domain, [record])
 
     def delete_dns_record(self, domain, name, content):
         """Delete an existing record. If record does not exist, do nothing."""
-        LOGGER.debug("delete_dns_record(%s, %s)", domain, name)
-
         # Note that id/type/hostname/destination are all mandatory when
         # deleting. We must query first to retrieve the record id.
         record = _make_record(domain, name, content)
@@ -194,7 +206,7 @@ def _apicall(action, credentials, **param):
     """Call an API method and return response data. For more info, see:
     https://ccp.netcup.net/run/webservice/servers/endpoint"""
 
-    LOGGER.debug("_apicall(%s)", action)
+    LOGGER.debug("_apicall: %s(%s)", action, param.get('domainname', ''))
 
     data = {
         "action": action,
@@ -217,6 +229,12 @@ def _apicall(action, credentials, **param):
 
     if status == "success":     # statuscode == 2000
         return data.get("responsedata", {})
+
+    # This happens when the domain is not chosen properly. Full message is:
+    # "Value in field domainname does not match requirements of type: domainname"
+    if 'Value in field domainname does not match requirements' in longmessage:
+        raise NetcupZoneError(
+            action, statuscode, shortmessage, longmessage)
 
     # The session times out after roughly 30s and fails with this error:
     if 'The session id is not in a valid format.' in longmessage:
@@ -244,6 +262,10 @@ class NetcupError(PluginError):
     def _format(cls, action, statuscode, shortmessage, longmessage):
         return (f'{cls.__name__} during {action}: '
                 f'{shortmessage} ({statuscode}) {longmessage}')
+
+
+class NetcupZoneError(NetcupError):
+    pass
 
 
 class NetcupSessionTimeoutError(NetcupError):
