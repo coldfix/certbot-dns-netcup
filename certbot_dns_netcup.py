@@ -46,7 +46,7 @@ class Authenticator(dns_common.DNSAuthenticator):
         add('login-retries', default=3, type=int,
             help="login retry attempts in case of session timeout")
         add('zone-name', help=(
-            "zone name to operate on (often TLD). "
+            "zone name to operate on (often second-level-domain). "
             "Will be determined using brute-force requests if not specified."))
 
     def more_info(self):

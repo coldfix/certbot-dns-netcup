@@ -96,7 +96,7 @@ certbot's command line:
                                          | netcup API client session times out.
                                          | (Default: 3, Recommended: >= 1)
 
-``--dns-netcup-zone-name DOMAIN``        | Zone name to operate on (often TLD).
+``--dns-netcup-zone-name DOMAIN``        | Zone name to operate on (often second-level-domain).
                                          | Will be determined using brute-force
                                          | requests if not specified.
 ======================================== =======================
