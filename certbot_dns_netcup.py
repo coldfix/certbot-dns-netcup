@@ -190,7 +190,7 @@ class APIClient:
             try:
                 return _apicall(action, session_auth, **param)
             except NetcupSessionTimeoutError:
-                LOGGER.info(
+                LOGGER.warning(
                     "Login session timed out during call %s for domain %s. "
                     "Retrying login (attempt %d)",
                     action, domainname, i + 1)
