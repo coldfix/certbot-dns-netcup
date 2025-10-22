@@ -7,7 +7,7 @@ netcup_ DNS Authenticator plugin for certbot_.
 
 This plugin automates the process of completing a ``dns-01`` challenge by
 creating, and subsequently removing, ``TXT`` records using the netcup `CCP
-API`_ via lexicon_.
+API`_ via nc_dnsapi_.
 
 **Note:** This plugin requires certbot ≥ v2.7.
 
@@ -16,7 +16,7 @@ If you need support for older certbot versions, check version 1.4.X and below.
 .. _netcup: https://www.netcup.de/
 .. _certbot: https://certbot.eff.org/
 .. _CCP API: https://www.netcup-wiki.de/wiki/CCP_API
-.. _lexicon: https://github.com/AnalogJ/lexicon
+.. _nc_dnsapi: https://github.com/nbuchwitz/nc_dnsapi
 .. _certbot-dns-cloudflare: https://certbot-dns-cloudflare.readthedocs.io/en/latest/
 
 
@@ -91,6 +91,14 @@ certbot's command line:
 ``--dns-netcup-propagation-seconds NUM`` | waiting time for DNS to propagate before asking
                                          | the ACME server to verify the DNS record.
                                          | (Default: 900, Recommended: >= 600)
+
+``--dns-netcup-login-retries NUM``       | Number of login retry attempts in case the
+                                         | netcup API client session times out.
+                                         | (Default: 3, Recommended: >= 1)
+
+``--dns-netcup-zone-name DOMAIN``        | Zone name to operate on (often TLD).
+                                         | Will be determined using brute-force
+                                         | requests if not specified.
 ======================================== =======================
 
 **NOTE:**
