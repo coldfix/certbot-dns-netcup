@@ -15,7 +15,7 @@ If you need support for older certbot versions, check version 1.4.X and below.
 
 .. _netcup: https://www.netcup.de/
 .. _certbot: https://certbot.eff.org/
-.. _CCP API: https://www.netcup-wiki.de/wiki/CCP_API
+.. _CCP API: https://www.netcup.com/en/helpcenter/documentation/domain/our-api
 .. _nc_dnsapi: https://github.com/nbuchwitz/nc_dnsapi
 .. _certbot-dns-cloudflare: https://certbot-dns-cloudflare.readthedocs.io/en/latest/
 
