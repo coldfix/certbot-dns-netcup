@@ -1,0 +1,73 @@
+# File format documentation:
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "certbot-dns-netcup"
+description = "netcup DNS Authenticator plugin for Certbot"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+dynamic = ["version"]
+requires-python = ">=3.7"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
+authors = [
+    {name = "Thomas Gläßle", email = "thomas@coldfix.de"},
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Plugins",
+    "Intended Audience :: System Administrators",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Security",
+    "Topic :: System :: Installation/Setup",
+    "Topic :: System :: Networking",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "certbot>=2.7",
+    "requests",
+]
+
+[project.urls]
+"Source Code" = "https://github.com/coldfix/certbot-dns-netcup"
+"Issue Tracker" = "https://github.com/coldfix/certbot-dns-netcup/issues"
+
+[project.entry-points."certbot.plugins"]
+dns-netcup = "certbot_dns_netcup:Authenticator"
+
+[tool.setuptools]
+py-modules = [
+    "certbot_dns_netcup",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "certbot_dns_netcup.__version__"}
+
+[tool.ruff]
+line-length = 81
+indent-width = 4
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "docs",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "C901",     # McCabe complexity
+]
+ignore = [
+    "E221",     # multiple spaces before operator
+]
+mccabe = {"max-complexity" = 8}
