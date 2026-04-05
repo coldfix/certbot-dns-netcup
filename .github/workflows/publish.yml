@@ -96,9 +96,9 @@ jobs:
 
       # Create and push multi-arch image for release:
       - run: docker manifest create
-                ${{ matrix.repository }}/certbot-dns-netcup:${{ github.ref_name }}
-                ${{ matrix.repository }}/certbot-dns-netcup:amd64-${{ github.ref_name }}
-                ${{ matrix.repository }}/certbot-dns-netcup:arm64-${{ github.ref_name }}
+                ${{ matrix.repository }}/coldfix/certbot-dns-netcup:${{ github.ref_name }}
+                ${{ matrix.repository }}/coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
+                ${{ matrix.repository }}/coldfix/certbot-dns-netcup:arm64-${{ github.ref_name }}
         if: startsWith(github.ref, 'refs/tags/v')
 
       - run: docker manifest push ${{ matrix.repository }}/coldfix/certbot-dns-netcup:${{ github.ref_name }}
