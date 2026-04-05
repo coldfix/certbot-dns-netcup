@@ -62,7 +62,7 @@ or::
 
     docker pull ghcr.io/coldfix/certbot-dns-netcup
 
-.. _docker.io/coldfix/certbot-dns-netcup: https://hub.docker.com/repository/docker/coldfix/certbot-dns-netcup-testing/general
+.. _docker.io/coldfix/certbot-dns-netcup: https://hub.docker.com/repository/docker/coldfix/certbot-dns-netcup
 .. _ghcr.io/coldfix/certbot-dns-netcup: https://github.com/coldfix/certbot-dns-netcup/pkgs/container/certbot-dns-netcup
 
 Usage
