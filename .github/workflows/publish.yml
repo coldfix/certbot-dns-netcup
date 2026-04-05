@@ -33,50 +33,75 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   docker:
-    name: Upload to hub.docker.com
+    name: Upload docker image
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    strategy:
+      matrix:
+        repository:
+          - docker.io
+          - ghcr.io
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
     steps:
       - uses: docker/setup-qemu-action@v4
       - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
-        if: github.event_name != 'pull_request'
-        with:
-          username: coldfix
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Build images
       - uses: docker/build-push-action@v7
+        name: Build amd64 image
         with:
           platforms: linux/amd64
           build-args: FROM=certbot/certbot:latest
           load: true
           tags: |
-            coldfix/certbot-dns-netcup:amd64-latest
-            coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
+            ${{ matrix.repository }}/coldfix/certbot-dns-netcup:amd64-latest
+            ${{ matrix.repository }}/coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
+
       - uses: docker/build-push-action@v7
+        name: Build arm64 image
         with:
           platforms: linux/arm64
           build-args: FROM=certbot/certbot:arm64v8-latest
           load: true
           tags: |
-            coldfix/certbot-dns-netcup:arm64-latest
-            coldfix/certbot-dns-netcup:arm64-${{ github.ref_name }}
+            ${{ matrix.repository }}/coldfix/certbot-dns-netcup:arm64-latest
+            ${{ matrix.repository }}/coldfix/certbot-dns-netcup:arm64-${{ github.ref_name }}
 
-      # push multi-arch images:
-      - run: docker push -a coldfix/certbot-dns-netcup
+      # Login
+      - uses: docker/login-action@v4
+        with:
+          registry: ${{ matrix.repository }}
+          username: coldfix
+          password: ${{ matrix.repository == 'docker.io' && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
+
+      # Push single-arch images:
+      - run: docker push -a ${{ matrix.repository }}/coldfix/certbot-dns-netcup
         if: startsWith(github.ref, 'refs/tags/v')
+
+      # Create and push multi-arch image "latest":
       - run: docker manifest create
-                coldfix/certbot-dns-netcup:latest
-                coldfix/certbot-dns-netcup:amd64-latest
-                coldfix/certbot-dns-netcup:arm64-latest
+                ${{ matrix.repository }}/coldfix/certbot-dns-netcup:latest
+                ${{ matrix.repository }}/coldfix/certbot-dns-netcup:amd64-latest
+                ${{ matrix.repository }}/coldfix/certbot-dns-netcup:arm64-latest
         if: startsWith(github.ref, 'refs/tags/v')
-      - run: docker manifest push coldfix/certbot-dns-netcup:latest
+
+      - run: docker manifest push ${{ matrix.repository }}/coldfix/certbot-dns-netcup:latest
         if: startsWith(github.ref, 'refs/tags/v')
+
+      # Create and push multi-arch image for release:
       - run: docker manifest create
-                coldfix/certbot-dns-netcup:${{ github.ref_name }}
-                coldfix/certbot-dns-netcup:amd64-${{ github.ref_name }}
-                coldfix/certbot-dns-netcup:arm64-${{ github.ref_name }}
+                ${{ matrix.repository }}ertbot-dns-netcup:${{ github.ref_name }}
+                ${{ matrix.repository }}ertbot-dns-netcup:amd64-${{ github.ref_name }}
+                ${{ matrix.repository }}ertbot-dns-netcup:arm64-${{ github.ref_name }}
         if: startsWith(github.ref, 'refs/tags/v')
-      - run: docker manifest push coldfix/certbot-dns-netcup:${{ github.ref_name }}
+
+      - run: docker manifest push ${{ matrix.repository }}/coldfix/certbot-dns-netcup:${{ github.ref_name }}
         if: startsWith(github.ref, 'refs/tags/v')
 
   snap:
