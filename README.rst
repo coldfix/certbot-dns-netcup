@@ -71,13 +71,13 @@ Usage
 To acquire a single certificate for both ``example.com`` and
 ``*.example.com``, waiting 1200 seconds (20min) for DNS propagation::
 
-    certbot certonly \\
-      --authenticator dns-netcup \\
-      --dns-netcup-credentials ~/.secrets/certbot/netcup.ini \\
-      --dns-netcup-propagation-seconds 1200 \\
+    certbot certonly \
+      --authenticator dns-netcup \
+      --dns-netcup-credentials ~/.secrets/certbot/netcup.ini \
+      --dns-netcup-propagation-seconds 1200 \
       --keep-until-expiring --non-interactive --expand \
       --server https://acme-v02.api.letsencrypt.org/directory \
-      -d 'example.com' \\
+      -d 'example.com' \
       -d '*.example.com'
 
 The parameters and the format of the credentials file are described below.
