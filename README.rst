@@ -50,11 +50,20 @@ to certbot::
 docker
 ~~~~~~
 
-Using docker, you can pull an image that contains both certbot and a matching
-version of the plugin::
+The official docker image of this repository is available from
+`docker.io/coldfix/certbot-dns-netcup`_ or
+`ghcr.io/coldfix/certbot-dns-netcup`_.
 
-    docker pull coldfix/certbot-dns-netcup
+Accordingly, you can pull the image as follows::
 
+    docker pull docker.io/coldfix/certbot-dns-netcup
+
+or::
+
+    docker pull ghcr.io/coldfix/certbot-dns-netcup
+
+.. _docker.io/coldfix/certbot-dns-netcup: https://hub.docker.com/repository/docker/coldfix/certbot-dns-netcup-testing/general
+.. _ghcr.io/coldfix/certbot-dns-netcup: https://github.com/coldfix/certbot-dns-netcup/pkgs/container/certbot-dns-netcup
 
 Usage
 -----
