@@ -76,7 +76,7 @@ jobs:
       # Login
       - uses: docker/login-action@v4
         with:
-          repository: ${{ matrix.repository }}
+          registry: ${{ matrix.repository }}
           username: coldfix
           password: ${{ matrix.repository == 'docker.io' && secrets.DOCKERHUB_TOKEN || secrets.GITHUB_TOKEN }}
 
