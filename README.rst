@@ -6,8 +6,8 @@ certbot-dns-netcup
 netcup_ DNS Authenticator plugin for certbot_.
 
 This plugin automates the process of completing a ``dns-01`` challenge by
-creating, and subsequently removing, ``TXT`` records using the netcup `CCP
-API`_.
+creating, and subsequently removing, ``TXT`` records. It supports both the
+the `CCP API`_ (legacy domains), or the new v1 `netcup API`_ (for CloudDNS).
 
 **Note:** This plugin requires certbot ≥ v2.7.
 
@@ -16,7 +16,7 @@ If you need support for older certbot versions, check version 1.4.X and below.
 .. _netcup: https://www.netcup.de/
 .. _certbot: https://certbot.eff.org/
 .. _CCP API: https://www.netcup.com/en/helpcenter/documentation/domain/our-api
-.. _certbot-dns-cloudflare: https://certbot-dns-cloudflare.readthedocs.io/en/latest/
+.. _netcup API: https://www.netcup.com/en/helpcenter/documentation/general/netcup-api
 
 
 Installation
@@ -122,18 +122,37 @@ Credentials
 -----------
 
 Use of this plugin requires a configuration file containing netcup API
-credentials, obtained from your netcup `account page`_. See also the `CCP
-API`_ documentation.
+credentials, obtained from your netcup `account page`_. You need a different
+API key depending on whether your domains are managed by CloudDNS.
 
-.. _account page: https://ccp.netcup.net/run/daten_aendern.php?sprung=api
+- If they are managed by CloudDNS (you will see a CloudDNS tab in the CCP when
+  you click on the domain), you have to use an API key for the new API
+  (section ``>_ API-Keys`` in your account page). See also: `netcup API`.
 
-An example ``credentials.ini`` file:
+- If they are **not** yet on CloudDNS, you have to use an API key for the
+  legacy API (``Legacy API-Keys`` section). See also: `CCP API`.
+
+.. _account page: https://ccp.netcup.net/run/api.php
+
+For the new netcup API (CloudDNS), the ``credentials.ini`` file looks like
+this:
+
+.. code-block:: ini
+
+   dns_netcup_api_v1_key   = 0123456789abcdef0123456789abcdef01234567
+
+For the legacy API (no CloudDNS), the ``credentials.ini`` has to contain these
+entries:
 
 .. code-block:: ini
 
    dns_netcup_customer_id  = 123456
    dns_netcup_api_key      = 0123456789abcdef0123456789abcdef01234567
    dns_netcup_api_password = abcdef0123456789abcdef01234567abcdef0123
+
+Both sets of values can be present in the ``credentials.ini`` file. In this
+case, the old API is used as fallback if your domains are not yet managed by
+CloudDNS.
 
 The path to this file can be provided interactively or using the
 ``--dns-netcup-credentials`` command-line argument. Certbot
