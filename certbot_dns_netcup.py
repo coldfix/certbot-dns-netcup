@@ -278,6 +278,7 @@ class NetcupError(PluginError):
         self.statuscode = statuscode
         self.shortmessage = shortmessage
         self.longmessage = longmessage
+        LOGGER.debug("%s", self)
 
     @classmethod
     def _format(cls, action, statuscode, shortmessage, longmessage):
