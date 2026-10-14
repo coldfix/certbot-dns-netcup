@@ -28,10 +28,22 @@ vary depending on how certbot is installed.
 pip
 ~~~
 
-If certbot is installed normally as a python package, the plugin can be
-installed using::
+The plugin can be installed along with certbot as a normal python package
+using::
 
     pip install certbot-dns-netcup
+
+uv
+~~
+
+Install with ``uv`` as follows::
+
+    uv tool install certbot --with certbot_dns_netcup
+
+or even run directly without prior installation::
+
+    uvx --from certbot --with git+https://github.com/coldfix/certbot-dns-netcup \
+        [...options...]
 
 snap
 ~~~~
