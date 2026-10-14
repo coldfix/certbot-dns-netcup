@@ -242,8 +242,15 @@ def _apicall(action, credentials, **param):
         raise NetcupZoneError(
             action, statuscode, shortmessage, longmessage)
 
-    # The session times out after roughly 30s and fails with this error:
-    if 'The session id is not in a valid format.' in longmessage:
+    # The session times out after roughly 30s and fails with this one of the
+    # the following error messages. The first one was likely replaced by the
+    # second one, but it could change again at any time, so we check for the
+    # statuscode as well.
+    if (
+        statuscode == 4001
+        or 'The session id is not in a valid format.' in longmessage
+        or 'Api session not found' in longmessage
+    ):
         raise NetcupSessionTimeoutError(
             action, statuscode, shortmessage, longmessage)
 
