@@ -238,7 +238,10 @@ def _apicall(action, credentials, **param):
 
     # This happens when the domain is not chosen properly. Full message is:
     # "Value in field domainname does not match requirements of type: domainname"
-    if 'Value in field domainname does not match requirements' in longmessage:
+    if (
+        statuscode == 4013
+        or 'Value in field domainname does not match requirements' in longmessage
+    ):
         raise NetcupZoneError(
             action, statuscode, shortmessage, longmessage)
 
@@ -253,6 +256,11 @@ def _apicall(action, credentials, **param):
     ):
         raise NetcupSessionTimeoutError(
             action, statuscode, shortmessage, longmessage)
+
+    # I've also seen:
+    # 4013 Validation Error: "More than 180 requests per minute. Please wait
+    # and retry later. Please contact our customer service to find out if the
+    # limitation of requests can be increased."
 
     # When something with the JSON format was incorrect, there is also:
     # "Api key missing. JSON decode failed while validating request."
