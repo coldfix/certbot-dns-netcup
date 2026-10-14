@@ -310,6 +310,7 @@ class APIClientV1:
 
     def __init__(self, api_key):
         self._api_key = api_key
+        self._domains = self._query_domains()
 
     def add_dns_record(self, domain, name, value):
         """Create record."""
@@ -327,23 +328,33 @@ class APIClientV1:
         domain_id = self._get_domain(domain)["id"]
         self._apicall("DELETE", f"/v1/domain/{domain_id}/acme/challenge/{scope}/{value}")
 
+    def _query_domains(self):
+        domains = {}
+        page = 1
+        while True:
+            response = self._apicall("GET", "v1/domain", params={page: page})
+            data = response.json()
+
+            for domain_entry in data["result"]:
+                domains[domain_entry["fqdn"].rstrip(".")] = domain_entry
+
+            if page == data["meta"]["pagination"]["lastPage"]:
+                return domains
+            page += 1
+
     def _get_domain(self, domain):
-        action = "v1/domain"
-        domain = domain.rstrip(".")
-        response = self._apicall("GET", action, params={"fqdn": domain})
-        status = response.status_code
+        LOGGER.debug("API v1: get domain %s", domain)
+        try:
+            domain = self._domains[domain.rstrip(".")]
+        except KeyError:
+            code = "ResourceNotFound"
+            message = "Domain is not a valid zone."
+            raise NetcupZoneError("queryDomain", 400, code, message)
 
-        results = response.json()["result"]
-        if len(results) != 1:
-            code = "UnexpectedResult"
-            message = "Unexpected number of results: {}".format(len(results))
-            raise NetcupError(action, status, code, message)
-
-        domain = results[0]
         if not domain["isDnsManaged"]:
             code = "UnmanagedDomain"
             message = "Domain is not managed by v1 API."
-            raise NetcupUnmanagedDomainError(action, status, code, message)
+            raise NetcupUnmanagedDomainError("queryDomain", 404, code, message)
 
         return domain
 
