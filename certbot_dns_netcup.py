@@ -366,6 +366,12 @@ class APIClientV1:
             f"{V1_API_ENDPOINT}/{resource}",
             headers=headers,
             **kwargs)
+
+        # DELETE /v1/domain/{domainId}/acme/challenge/{scope}/{value} has
+        # empty content on success (204):
+        if response.status_code == 204 and response.content.strip() == b'':
+            return response
+
         data = response.json()
         if data["success"]:
             return response
