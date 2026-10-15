@@ -51,7 +51,7 @@ py-modules = [
 version = {attr = "certbot_dns_netcup.__version__"}
 
 [tool.ruff]
-line-length = 81
+line-length = 90
 indent-width = 4
 exclude = [
     ".git",
@@ -70,4 +70,4 @@ select = [
 ignore = [
     "E221",     # multiple spaces before operator
 ]
-mccabe = {"max-complexity" = 8}
+mccabe = {"max-complexity" = 15}

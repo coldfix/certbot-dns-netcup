@@ -1,7 +1,7 @@
 """
 This module defines a certbot plugin to automate the process of completing a
 ``dns-01`` challenge (`~acme.challenges.DNS01`) by creating, and subsequently
-removing, TXT records using the netcup CCP API.
+removing, TXT records using the netcup CCP API or netcup DNS API.
 """
 
 # Keep metadata before any imports (for setup.py)!
@@ -12,13 +12,19 @@ __all__     = ['Authenticator']
 import json
 import logging
 import requests
+from urllib.parse import quote
 
 from certbot.plugins import dns_common
 from certbot.errors import PluginError
 
 
-API_URL = 'https://www.netcup-wiki.de/wiki/CCP_API'
-API_ENDPOINT = "https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON"
+V0_API_URL = "https://www.netcup.com/en/helpcenter/documentation/domain/our-api"
+V1_API_URL = "https://www.netcup.com/en/helpcenter/documentation/general/netcup-api"
+
+V0_API_ENDPOINT = "https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON"
+V1_API_ENDPOINT = "https://api.netcup.com"
+
+ACME_PREFIX = "_acme-challenge"
 
 LOGGER = logging.getLogger(__name__)
 
@@ -36,6 +42,8 @@ class Authenticator(dns_common.DNSAuthenticator):
         super(Authenticator, self).__init__(*args, **kwargs)
         self.credentials = None
         self.api_session_id = None
+        self._v0_client = None
+        self._v1_client = None
 
     # DNSAuthenticator overrides
 
@@ -57,53 +65,136 @@ class Authenticator(dns_common.DNSAuthenticator):
         self.credentials = self._configure_credentials(
             'credentials',
             'netcup credentials INI file',
-            {
-                'customer-id':  'Customer ID associated with netcup account',
-                'api-key':      'Key for CCP API, see {}'.format(API_URL),
-                'api-password': 'Password for CCP API, see {}'.format(API_URL),
-            }
-        )
+            {})
+        # These variables are currently optional because either new or old
+        # API can be used. When we drop support for the legacy API, the
+        # new API key can be made mandatory again.
+        #
+        # 'customer-id':  'Customer ID associated with netcup account',
+        # 'api-key':      'Key for (legacy) CCP API, see {}'.format(V0_API_URL),
+        # 'api-password': 'Password for CCP API, see {}'.format(V0_API_URL),
+        # 'api-v1-key':   'Key for netcup API v1, see {}'.format(V1_API_URL),
 
     def _perform(self, domain, validation_name, validation):
         LOGGER.debug("add_dns_record (%s, %s)", domain, validation_name)
-        client = self._get_netcup_client()
-        self._determine_zone(domain, lambda domain: (
+        self._determine_zone(domain, lambda client, domain: (
             client.add_dns_record(domain, validation_name, validation)))
 
     def _cleanup(self, domain, validation_name, validation):
         LOGGER.debug("delete_dns_record(%s, %s)", domain, validation_name)
-        client = self._get_netcup_client()
-        self._determine_zone(domain, lambda domain: (
+        self._determine_zone(domain, lambda client, domain: (
             client.delete_dns_record(domain, validation_name, validation)))
 
     def _determine_zone(self, domain, func):
         """Find the domain_id for a given domain."""
+        self._create_clients()
+
         zone_name = self.conf('zone-name')
         if zone_name:
-            return func(zone_name)
+            if self._v1_client:
+                try:
+                    return func(self._v1_client, zone_name)
+                except NetcupZoneError:
+                    # In my trials all legacy domains are listed with the new
+                    # API as well. This would mean that the v0_client will not
+                    # do better here. But let's give this finding the benefit
+                    # of the doubt and try anyway if v0_client is available:
+                    if not self._v0_client:
+                        raise
+                except NetcupUnmanagedDomainError as e:
+                    # This exception means zone is managed by legacy API.
+                    # Credentials for legacy API are required.
+                    if not self._v0_client:
+                        raise PluginError(
+                            "Domain is not managed by new API, "
+                            "but credentials for legacy API are missing."
+                        ) from e
+
+            return func(self._v0_client, zone_name)
 
         domain_name_guesses = dns_common.base_domain_name_guesses(domain)
 
-        for domain_name in domain_name_guesses:
-            try:
-                return func(domain_name)
-            except NetcupZoneError:
-                pass
+        if self._v1_client:
+            for domain_name in domain_name_guesses:
+                try:
+                    return func(self._v1_client, domain_name)
+                except NetcupZoneError:
+                    pass
+                except NetcupUnmanagedDomainError as e:
+                    # Domain was found but is handled by legacy API:
+                    if self._v0_client:
+                        return func(self._v0_client, domain_name)
+                    else:
+                        raise PluginError(
+                            "Domain is not managed by new API, "
+                            "but credentials for legacy API are missing."
+                        ) from e
+
+        if self._v0_client:
+            for domain_name in domain_name_guesses:
+                try:
+                    return func(self._v0_client, domain_name)
+                except NetcupZoneError:
+                    pass
 
         raise PluginError(
             'Unable to determine zone identifier for {0} using zone names: {1}'
             .format(domain, domain_name_guesses))
 
-    def _get_netcup_client(self):
-        credentials = self.credentials.conf
-        return APIClient(
-            credentials('customer-id'),
-            credentials('api-key'),
-            credentials('api-password'),
-            self.conf('login-retries'))
+    def _create_clients(self):
+        if not (self._v0_client or self._v1_client):
+            self._v0_client = self._create_v0_client()
+            self._v1_client = self._create_v1_client()
+        if not (self._v0_client or self._v1_client):
+            raise PluginError("No credentials were specified!")
+
+    def _create_v0_client(self):
+        v0_cred = (
+            self.credentials.conf('customer-id'),
+            self.credentials.conf('api-key'),
+            self.credentials.conf('api-password'))
+
+        if any(v0_cred) and not all(v0_cred):
+            raise PluginError((
+                "Credentials for legacy API partially missing! "
+                "You must specify either all or none of:\n"
+                " - customer-id  ({})\n"
+                " - api-key      ({})\n"
+                " - api-password ({})\n"
+            ).format(*[
+                'specified' if value else 'missing'
+                for value in v0_cred
+            ]))
+
+        if all(v0_cred):
+            LOGGER.debug("Creating v0 API client.")
+            return APIClientV0(*v0_cred, self.conf('login-retries'))
+
+    def _create_v1_client(self):
+        api_key = self.credentials.conf('api-v1-key')
+        if api_key:
+            LOGGER.debug("Creating v1 API client.")
+            return APIClientV1(api_key)
 
 
-class APIClient:
+class APIClientV0:
+
+    """
+    API client for the legacy API, see:
+
+    https://ccp.netcup.net/run/webservice/servers/endpoint.php
+
+    API usage / dynamic behaviour:
+
+        add_dns_record:
+        - login()               login every time to avoid session timeout
+        - updateDnsRecords()    insert the new record
+
+        delete_dns_record
+        - login()               login every time to avoid session timeout
+        - infoDnsRecords()      retrieve existing record (needed for deletion)
+        - updateDnsRecords()    delete given record
+    """
 
     def __init__(self, customer_id, api_key, api_password, login_retries):
         self._customer_id = customer_id
@@ -199,6 +290,113 @@ class APIClient:
         return _apicall(action, session_auth, **param)
 
 
+class APIClientV1:
+
+    """
+    API client for the v1 API (CloudDNS), see:
+
+    https://www.netcup.com/en/helpcenter/documentation/netcup-api
+
+    API usage / dynamic behaviour:
+
+        add_dns_record:
+        - GET       /v1/domain?fqdn=...
+        - POST      /v1/domain/{id}/acme/challenge
+
+        delete_dns_record:
+        - GET       /v1/domain?fqdn=...
+        - DELETE    /v1/domain/{id}/acme/challenge/{scope}/{value}
+    """
+
+    def __init__(self, api_key):
+        self._api_key = api_key
+        self._domains = self._query_domains()
+
+    def add_dns_record(self, domain, name, value):
+        """Create record."""
+        scope = _get_scope(domain, name)
+        domain_id = self._get_domain(domain)["id"]
+        self._apicall("POST", f"v1/domain/{domain_id}/acme/challenge", json={
+            "scope": scope,
+            "value": value,
+        })
+
+    def delete_dns_record(self, domain, name, value):
+        """Delete an existing record. If record does not exist, do nothing."""
+        value = quote(value)
+        scope = quote(_get_scope(domain, name), safe="@")
+        domain_id = self._get_domain(domain)["id"]
+        self._apicall("DELETE", f"/v1/domain/{domain_id}/acme/challenge/{scope}/{value}")
+
+    def _query_domains(self):
+        domains = {}
+        page = 1
+        while True:
+            response = self._apicall("GET", "v1/domain", params={page: page})
+            data = response.json()
+
+            for domain_entry in data["result"]:
+                domains[domain_entry["fqdn"].rstrip(".")] = domain_entry
+
+            if page == data["meta"]["pagination"]["lastPage"]:
+                return domains
+            page += 1
+
+    def _get_domain(self, domain):
+        LOGGER.debug("API v1: get domain %s", domain)
+        try:
+            domain = self._domains[domain.rstrip(".")]
+        except KeyError:
+            code = "ResourceNotFound"
+            message = "Domain is not a valid zone."
+            raise NetcupZoneError("queryDomain", 400, code, message)
+
+        if not domain["isDnsManaged"]:
+            code = "UnmanagedDomain"
+            message = "Domain is not managed by v1 API."
+            raise NetcupUnmanagedDomainError("queryDomain", 404, code, message)
+
+        return domain
+
+    def _apicall(self, method, resource, **kwargs):
+        LOGGER.debug("API v1: %s /%s", method, resource)
+        headers = {"Authorization": f"Bearer {self._api_key}"}
+        response = requests.request(
+            method,
+            f"{V1_API_ENDPOINT}/{resource}",
+            headers=headers,
+            **kwargs)
+
+        # DELETE /v1/domain/{domainId}/acme/challenge/{scope}/{value} has
+        # empty content on success (204):
+        if response.status_code == 204 and response.content.strip() == b'':
+            return response
+
+        data = response.json()
+        if data["success"]:
+            return response
+
+        status = response.status_code
+        action = f"{method} /{resource}"
+
+        for error in data["errors"]:
+            code = error.get("code", "Unknown")
+            message = error.get("message", "Unknown error")
+            # Known errors:
+            # 400 authenticationError: Authentication token is not valid or has expired.
+            # 404 resourceDoesNotExist: No results found, the page number may be too high.
+            if (
+                status == 404
+                or code == "resourceDoesNotExist"
+                or message == "No results found, the page number may be too high."
+            ):
+                raise NetcupZoneError(action, status, code, message)
+
+            raise NetcupError(action, status, code, message)
+
+        raise NetcupError(action, status, "Unknown", "Unknown")
+
+
 def _make_record(domain, name, content):
     name = name.removesuffix('.' + domain)
     return {
@@ -208,18 +406,31 @@ def _make_record(domain, name, content):
     }
 
 
+def _get_scope(domain, name):
+    name = name.rstrip(".")
+    scope = name.removesuffix("." + domain.rstrip("."))
+    if scope == ACME_PREFIX:
+        return "@"
+    if not scope.startswith(ACME_PREFIX + "."):
+        raise PluginError((
+            "Expecting validation name to start with `{}.*`. "
+            "Got: {}"
+        ).format(ACME_PREFIX, name))
+    return scope.removeprefix(ACME_PREFIX + ".")
+
+
 def _apicall(action, credentials, **param):
     """Call an API method and return response data. For more info, see:
     https://ccp.netcup.net/run/webservice/servers/endpoint"""
 
-    LOGGER.debug("_apicall: %s(%s)", action, param.get('domainname', ''))
+    LOGGER.debug("API v0: /%s(%s)", action, param.get('domainname', ''))
 
     data = {
         "action": action,
         "param": dict(param, **credentials),
     }
     response = requests.post(
-        API_ENDPOINT,
+        V0_API_ENDPOINT,
         data=json.dumps(data),
         headers={
             "Accept": "application/json",
@@ -287,6 +498,10 @@ class NetcupError(PluginError):
 
 
 class NetcupZoneError(NetcupError):
+    pass
+
+
+class NetcupUnmanagedDomainError(NetcupError):
     pass
 
 
