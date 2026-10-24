@@ -139,10 +139,10 @@ API key depending on whether your domains are managed by CloudDNS.
 
 - If they are managed by CloudDNS (you will see a CloudDNS tab in the CCP when
   you click on the domain), you have to use an API key for the new API
-  (section ``>_ API-Keys`` in your account page). See also: `netcup API`.
+  (section ``>_ API-Keys`` in your account page). See also: `netcup API`_.
 
 - If they are **not** yet on CloudDNS, you have to use an API key for the
-  legacy API (``Legacy API-Keys`` section). See also: `CCP API`.
+  legacy API (``Legacy API-Keys`` section). See also: `CCP API`_.
 
 .. _account page: https://ccp.netcup.net/run/api.php
 
